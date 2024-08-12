@@ -11,14 +11,14 @@ export class EstudiantesService {
   constructor(
     @InjectRepository(Estudiante)
     private readonly estudianteRepository: Repository<Estudiante>,
-  ) {}
+  ) { }
   async create(createEstudianteDto: CreateEstudianteDto) {
     const estudiante = this.estudianteRepository.create(createEstudianteDto);
     estudiante.id_estudiante = await this.genId(
       estudiante.nombres,
       estudiante.apellidos,
-      estudiante.carnet
-    )
+      estudiante.carnet,
+    );
     return await this.estudianteRepository.save(estudiante);
   }
 
@@ -26,16 +26,16 @@ export class EstudiantesService {
     return await this.estudianteRepository.find();
   }
 
-  async findOne(id: number) {
-    return `This action returns a #${id} estudiante`;
+  async findOne(id: string) {
+    return await this.estudianteRepository.findBy({ id_estudiante: id });
   }
 
-  async update(id: number, updateEstudianteDto: UpdateEstudianteDto) {
-    return `This action updates a #${id} estudiante`;
+  async update(id: string, updateEstudianteDto: UpdateEstudianteDto) {
+    return await this.estudianteRepository.update(id,updateEstudianteDto);
   }
 
-  async remove(id: number) {
-    return `This action removes a #${id} estudiante`;
+  async remove(id: string) {
+    return await this.estudianteRepository.softDelete({id_estudiante:id});
   }
 
   async genId(nombres: string, apellidos: string, dni: string) {
