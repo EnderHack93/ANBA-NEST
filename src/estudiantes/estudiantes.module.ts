@@ -3,9 +3,10 @@ import { EstudiantesService } from './estudiantes.service';
 import { EstudiantesController } from './estudiantes.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Estudiante } from './entities/estudiante.entity';
+import { Especialidad } from 'src/especialidades/entities/especialidad.entity';
 
 @Module({
-  imports:[TypeOrmModule.forFeature([Estudiante])],
+  imports:[TypeOrmModule.forFeature([Estudiante,Especialidad])],
   controllers: [EstudiantesController],
   providers: [EstudiantesService],
 })

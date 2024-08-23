@@ -5,13 +5,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Estudiante } from './entities/estudiante.entity';
 import { Repository } from 'typeorm';
 import { randomInt } from 'crypto';
+import { Especialidad } from 'src/especialidades/entities/especialidad.entity';
 
 @Injectable()
 export class EstudiantesService {
   constructor(
     @InjectRepository(Estudiante)
     private readonly estudianteRepository: Repository<Estudiante>,
-  ) { }
+    @InjectRepository(Especialidad)
+    private readonly especialidadRepository: Repository<Especialidad>,
+  ) {}
   async create(createEstudianteDto: CreateEstudianteDto) {
     const estudiante = this.estudianteRepository.create(createEstudianteDto);
     estudiante.id_estudiante = await this.genId(
@@ -19,6 +22,9 @@ export class EstudiantesService {
       estudiante.apellidos,
       estudiante.carnet,
     );
+    const especialidad = await this.especialidadRepository.findOneBy({
+      nombre: createEstudianteDto.id_especialidad,
+    });
     return await this.estudianteRepository.save(estudiante);
   }
 
@@ -31,11 +37,11 @@ export class EstudiantesService {
   }
 
   async update(id: string, updateEstudianteDto: UpdateEstudianteDto) {
-    return await this.estudianteRepository.update(id,updateEstudianteDto);
+    return await this.estudianteRepository.update(id, updateEstudianteDto);
   }
 
   async remove(id: string) {
-    return await this.estudianteRepository.softDelete({id_estudiante:id});
+    return await this.estudianteRepository.softDelete({ id_estudiante: id });
   }
 
   async genId(nombres: string, apellidos: string, dni: string) {

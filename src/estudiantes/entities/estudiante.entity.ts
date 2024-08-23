@@ -1,10 +1,14 @@
+import { Especialidad } from 'src/especialidades/entities/especialidad.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   UpdateDateColumn,
 } from 'typeorm';
+import { EstadoEst } from './estado.enum';
 
 @Entity()
 export class Estudiante {
@@ -20,10 +24,10 @@ export class Estudiante {
   @Column()
   fecha_nacimiento: Date;
 
-  @Column()
+  @Column({unique:true})
   correo: string;
 
-  @Column()
+  @Column({unique:true})
   carnet: string;
 
   @Column({ nullable: true })
@@ -31,6 +35,9 @@ export class Estudiante {
 
   @Column()
   password: string;
+
+  @Column({ default:EstadoEst.ACTIVO})
+  estado: EstadoEst;
 
   @CreateDateColumn()
   created_at: Date;
@@ -40,4 +47,10 @@ export class Estudiante {
 
   @DeleteDateColumn()
   deleted_at: Date;
+
+  @ManyToOne(()=> Especialidad,(especialidad)=> especialidad.id_especialidad,{
+    eager:true,
+  })
+  @JoinColumn({name:'id_especialidad'})
+  especialidad:Especialidad
 }
