@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { EstudiantesModule } from './estudiantes/estudiantes.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EspecialidadesModule } from './especialidades/especialidades.module';
+import { DocentesModule } from './docentes/docentes.module';
 
 @Module({
   imports: [EstudiantesModule, TypeOrmModule.forRoot(
@@ -15,6 +16,6 @@ import { EspecialidadesModule } from './especialidades/especialidades.module';
       synchronize: true,
       autoLoadEntities: true
     }
-  ), EspecialidadesModule],
+  ), EspecialidadesModule, DocentesModule],
 })
 export class AppModule {}

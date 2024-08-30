@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateEstudianteDto } from './dto/create-estudiante.dto';
 import { UpdateEstudianteDto } from './dto/update-estudiante.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,6 +6,10 @@ import { Estudiante } from './entities/estudiante.entity';
 import { Repository } from 'typeorm';
 import { randomInt } from 'crypto';
 import { Especialidad } from 'src/especialidades/entities/especialidad.entity';
+import { EstadoEsp } from 'src/especialidades/entities/estado.enum';
+import { EstadoEst } from './entities/estado.enum';
+import { PaginationDto } from 'src/common/pagination.dto';
+import { Pagination } from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class EstudiantesService {
@@ -25,7 +29,18 @@ export class EstudiantesService {
     const especialidad = await this.especialidadRepository.findOneBy({
       nombre: createEstudianteDto.id_especialidad,
     });
-    return await this.estudianteRepository.save(estudiante);
+    if(!especialidad){
+      throw new BadRequestException('Especialidad no existe');
+    }
+
+    if(especialidad.estado == EstadoEsp.INACTIVO){
+      throw new BadRequestException('Especialidad inactiva');
+    }
+
+    return await this.estudianteRepository.save({
+      ...estudiante,
+      especialidad
+    });
   }
 
   async findAll() {
@@ -42,6 +57,15 @@ export class EstudiantesService {
 
   async remove(id: string) {
     return await this.estudianteRepository.softDelete({ id_estudiante: id });
+  }
+  async changeState(id: string) {
+    const estudiante = await this.estudianteRepository.findOneBy({id_estudiante:id})
+    
+    estudiante.estado = estudiante.estado === EstadoEst.ACTIVO
+    ? EstadoEst.INACTIVO
+    : EstadoEst.ACTIVO;
+
+    return await this.estudianteRepository.save(estudiante)
   }
 
   async genId(nombres: string, apellidos: string, dni: string) {

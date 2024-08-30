@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
 import { EstudiantesService } from './estudiantes.service';
 import { CreateEstudianteDto } from './dto/create-estudiante.dto';
 import { UpdateEstudianteDto } from './dto/update-estudiante.dto';
+import { PaginationDto } from 'src/common/pagination.dto';
 
 @Controller('estudiantes')
 export class EstudiantesController {
@@ -31,5 +32,9 @@ export class EstudiantesController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.estudiantesService.remove(id);
+  }
+  @Put(':id')
+  changeState(@Param('id') id:string){
+    return this.estudiantesService.changeState(id);
   }
 }

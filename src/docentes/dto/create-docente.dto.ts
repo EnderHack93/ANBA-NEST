@@ -1,7 +1,7 @@
-import { IsDate, IsDateString, IsEmail, IsNumber, IsOptional, IsPositive, IsString, IsStrongPassword, MinLength } from 'class-validator';
-import { Especialidad } from 'src/especialidades/entities/especialidad.entity';
+import { IsDateString, IsEmail, IsOptional, IsString, IsStrongPassword, MinLength } from "class-validator";
 
-export class CreateEstudianteDto {
+export class CreateDocenteDto {
+
   @IsString()
   @MinLength(5)
   nombres: string;
@@ -28,5 +28,4 @@ export class CreateEstudianteDto {
   @IsString()
   @IsOptional()
   id_especialidad?:string
-  
 }
