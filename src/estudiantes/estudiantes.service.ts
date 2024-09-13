@@ -6,10 +6,9 @@ import { Estudiante } from './entities/estudiante.entity';
 import { Repository } from 'typeorm';
 import { randomInt } from 'crypto';
 import { Especialidad } from 'src/especialidades/entities/especialidad.entity';
-import { EstadoEsp } from 'src/especialidades/entities/estado.enum';
 import { EstadoEst } from './entities/estado.enum';
-import { PaginationDto } from 'src/common/pagination.dto';
-import { Pagination } from 'nestjs-typeorm-paginate';
+import { FilterOperator, FilterSuffix, paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
+import { EstadoEspecialidad } from 'src/especialidades/entities/estado.enum';
 
 @Injectable()
 export class EstudiantesService {
@@ -27,24 +26,37 @@ export class EstudiantesService {
       estudiante.carnet,
     );
     const especialidad = await this.especialidadRepository.findOneBy({
-      nombre: createEstudianteDto.id_especialidad,
+      id_especialidad: createEstudianteDto.id_especialidad,
     });
-    if(!especialidad){
+    if (!especialidad) {
       throw new BadRequestException('Especialidad no existe');
     }
 
-    if(especialidad.estado == EstadoEsp.INACTIVO){
+    if (especialidad.estado == EstadoEspecialidad.INACTIVO) {
       throw new BadRequestException('Especialidad inactiva');
     }
 
     return await this.estudianteRepository.save({
       ...estudiante,
-      especialidad
+      especialidad,
     });
   }
 
-  async findAll() {
-    return await this.estudianteRepository.find();
+  async findAll(query: PaginateQuery): Promise<Paginated<Estudiante>> {
+    return paginate(query, this.estudianteRepository, {
+      relations: ['especialidad'],
+      sortableColumns: ['id_estudiante', 'nombres', 'apellidos', 'carnet'],
+      searchableColumns: ['id_estudiante', 'nombres', 'apellidos', 'carnet'],
+      defaultSortBy: [['id_estudiante', 'ASC']],
+      filterableColumns: {
+        estado: [FilterOperator.EQ,FilterSuffix.NOT],
+        'especialidad.nombre': [FilterOperator.EQ],
+        nombres: [FilterOperator.ILIKE],
+        apellidos: [FilterOperator.ILIKE],
+        carnet: [FilterOperator.ILIKE],
+        especialidad: [FilterOperator.ILIKE],
+      }
+    });
   }
 
   async findOne(id: string) {
@@ -59,13 +71,16 @@ export class EstudiantesService {
     return await this.estudianteRepository.softDelete({ id_estudiante: id });
   }
   async changeState(id: string) {
-    const estudiante = await this.estudianteRepository.findOneBy({id_estudiante:id})
-    
-    estudiante.estado = estudiante.estado === EstadoEst.ACTIVO
-    ? EstadoEst.INACTIVO
-    : EstadoEst.ACTIVO;
+    const estudiante = await this.estudianteRepository.findOneBy({
+      id_estudiante: id,
+    });
 
-    return await this.estudianteRepository.save(estudiante)
+    estudiante.estado =
+      estudiante.estado === EstadoEst.ACTIVO
+        ? EstadoEst.INACTIVO
+        : EstadoEst.ACTIVO;
+
+    return await this.estudianteRepository.save(estudiante);
   }
 
   async genId(nombres: string, apellidos: string, dni: string) {

@@ -5,10 +5,14 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
+  OneToMany,
   UpdateDateColumn,
 } from 'typeorm';
 import { EstadoEst } from './estado.enum';
+import { Clase } from 'src/clases/entities/clase.entity';
+import { Inscrito } from 'src/inscritos/entities/inscrito.entity';
 
 @Entity()
 export class Estudiante {
@@ -53,4 +57,9 @@ export class Estudiante {
   })
   @JoinColumn({name:'id_especialidad'})
   especialidad:Especialidad
+
+  @OneToMany(() => Inscrito, inscritos => inscritos.estudiante)
+  inscritos: Inscrito[]
+
+  
 }

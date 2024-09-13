@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Docente } from './entities/docente.entity';
 import { Repository } from 'typeorm';
 import { Especialidad } from 'src/especialidades/entities/especialidad.entity';
-import { EstadoEsp } from 'src/especialidades/entities/estado.enum';
+import { EstadoEspecialidad } from 'src/especialidades/entities/estado.enum';
 import { EstadoDocentes } from './entities/estado.enum';
 
 @Injectable()
@@ -33,7 +33,7 @@ export class DocentesService {
       throw new BadRequestException('Especialidad no existe');
     }
 
-    if(especialidad.estado == EstadoEsp.INACTIVO){
+    if(especialidad.estado == EstadoEspecialidad.INACTIVO){
       throw new BadRequestException('Especialidad inactiva');
     }
 

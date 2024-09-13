@@ -2,50 +2,40 @@ import { Especialidad } from 'src/especialidades/entities/especialidad.entity';
 import {
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { EstadoDocentes } from './estado.enum';
+import { EstadoMateria } from './estado.enum';
 import { Clase } from 'src/clases/entities/clase.entity';
 
 @Entity()
-export class Docente {
-  @Column({ primary: true })
-  id_docente: string;
+export class Materia {
+  @PrimaryGeneratedColumn()
+  id_materia: number;
 
   @Column()
-  nombres: string;
+  nombre: string;
 
   @Column()
-  apellidos: string;
-
-  @Column({ unique: true })
-  correo: string;
+  descripcion: string;
 
   @Column()
-  password: string;
+  semestre: string;
 
-  @Column({ unique: true })
-  carnet: string;
-
-  @Column({ nullable: true })
-  telefono: string;
-
-  @Column({ default: EstadoDocentes.ACTIVO })
-  estado: EstadoDocentes;
+  @Column({
+    default: EstadoMateria.ACTIVO,
+  })
+  estado: EstadoMateria;
 
   @CreateDateColumn()
   created_at: Date;
 
   @UpdateDateColumn()
   updated_at: Date;
-
-  @DeleteDateColumn()
-  deleted_at: Date;
 
   @ManyToOne(
     () => Especialidad,

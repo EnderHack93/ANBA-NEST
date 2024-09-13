@@ -4,7 +4,7 @@ import { UpdateEspecialidadDto } from './dto/update-especialidad.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Especialidad } from './entities/especialidad.entity';
 import { Repository } from 'typeorm';
-import { EstadoEsp } from './entities/estado.enum';
+import { EstadoEspecialidad } from './entities/estado.enum';
 
 @Injectable()
 export class EspecialidadesService {
@@ -30,9 +30,9 @@ export class EspecialidadesService {
   async remove(id: number) {
     const especialidad = await this.especialidadRepository.findOneBy({id_especialidad:id})
     
-    especialidad.estado = especialidad.estado === EstadoEsp.ACTIVO
-    ? EstadoEsp.INACTIVO
-    : EstadoEsp.ACTIVO;
+    especialidad.estado = especialidad.estado === EstadoEspecialidad.ACTIVO
+    ? EstadoEspecialidad.INACTIVO
+    : EstadoEspecialidad.ACTIVO;
 
     return await this.especialidadRepository.save(especialidad)
   }

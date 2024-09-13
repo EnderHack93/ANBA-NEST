@@ -1,8 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { EstudiantesService } from './estudiantes.service';
 import { CreateEstudianteDto } from './dto/create-estudiante.dto';
 import { UpdateEstudianteDto } from './dto/update-estudiante.dto';
-import { PaginationDto } from 'src/common/pagination.dto';
+import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
+import { Estudiante } from './entities/estudiante.entity';
 
 @Controller('estudiantes')
 export class EstudiantesController {
@@ -10,13 +21,12 @@ export class EstudiantesController {
 
   @Post()
   create(@Body() createEstudianteDto: CreateEstudianteDto) {
-    
     return this.estudiantesService.create(createEstudianteDto);
   }
 
   @Get()
-  findAll() {
-    return this.estudiantesService.findAll();
+  findAll(@Paginate() query: PaginateQuery): Promise<Paginated<Estudiante>> {
+    return this.estudiantesService.findAll(query);
   }
 
   @Get(':id')
@@ -25,7 +35,10 @@ export class EstudiantesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEstudianteDto: UpdateEstudianteDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateEstudianteDto: UpdateEstudianteDto,
+  ) {
     return this.estudiantesService.update(id, updateEstudianteDto);
   }
 
@@ -34,7 +47,7 @@ export class EstudiantesController {
     return this.estudiantesService.remove(id);
   }
   @Put(':id')
-  changeState(@Param('id') id:string){
+  changeState(@Param('id') id: string) {
     return this.estudiantesService.changeState(id);
   }
 }
