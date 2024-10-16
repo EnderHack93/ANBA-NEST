@@ -18,7 +18,7 @@ export class AuthController {
   }
 
   @Get('check')
-  @Auth(EnumRoles.DOCENTE)
+  @Auth(EnumRoles.ESTUDIANTE)
   check(
     @ActiveUser() user:UserInterfaceActive
   ) {
