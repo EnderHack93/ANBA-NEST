@@ -59,24 +59,28 @@ export class ClasesService {
       docente,
     });
   }
+  
+  
 
   async findAll(query: PaginateQuery): Promise<Paginated<Clase>> {
     const clases = this.claseRepository
       .createQueryBuilder('clase')
       .leftJoinAndSelect('clase.materia', 'materia')
+      .leftJoinAndSelect('materia.especialidad', 'especialidad')
       .leftJoinAndSelect('clase.docente', 'docente')
 
     return paginate(query, clases, {
-      relations: ['materia', 'docente'],
+      relations: ['materia', 'docente','materia.especialidad'],
       sortableColumns: ['id_clase', 'nombre'],
       searchableColumns: ['id_clase', 'nombre'],
       defaultSortBy: [['id_clase', 'ASC']],
       filterableColumns: {
-        estado: [FilterOperator.EQ],
+        estado: [FilterOperator.EQ], 
         nombre: [FilterOperator.ILIKE],
         semestre: [FilterOperator.ILIKE],
         docente: [FilterOperator.ILIKE],
-        materia: [FilterOperator.ILIKE],
+        "materia.especialidad.nombre": [FilterOperator.ILIKE],
+
       },
     });
   }

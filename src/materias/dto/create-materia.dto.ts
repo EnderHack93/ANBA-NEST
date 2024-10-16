@@ -1,4 +1,4 @@
-import { IsString } from "class-validator";
+import { IsNumber, IsString } from "class-validator";
 
 export class CreateMateriaDto {
   @IsString()
@@ -10,6 +10,6 @@ export class CreateMateriaDto {
   @IsString()
   descripcion: string;
 
-  @IsString()
-  id_especialidad: string;
+  @IsNumber()
+  id_especialidad: number;
 }

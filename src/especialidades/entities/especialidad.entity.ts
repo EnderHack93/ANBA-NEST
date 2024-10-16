@@ -3,6 +3,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -10,6 +12,7 @@ import {
 import { EstadoEspecialidad } from './estado.enum';
 import { Docente } from 'src/docentes/entities/docente.entity';
 import { Materia } from 'src/materias/entities/materia.entity';
+import { Estado } from 'src/estados/entites/estado.entity';
 
 @Entity()
 class Especialidad {
@@ -19,11 +22,8 @@ class Especialidad {
   @Column({ unique: true })
   nombre: string;
 
-  @Column({default:8})
+  @Column({ default: 8 })
   duracion: number;
-
-  @Column({ default: EstadoEspecialidad.ACTIVO })
-  estado: EstadoEspecialidad;
 
   @CreateDateColumn()
   created_at: Date;
@@ -37,8 +37,12 @@ class Especialidad {
   @OneToMany(() => Docente, (docente) => docente.especialidad)
   docente: Docente[];
 
-  @OneToMany(()=> Materia, (materia) => materia.especialidad)
+  @OneToMany(() => Materia, (materia) => materia.especialidad)
   materia: Materia[];
+
+  @ManyToOne(() => Estado, (estado) => estado.nombre, {eager:true})
+  @JoinColumn({ name: 'id_estado'})
+  estado: Estado;
 }
 
 export { Especialidad };

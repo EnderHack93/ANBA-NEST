@@ -8,7 +8,9 @@ export class Inscrito {
   @PrimaryGeneratedColumn()
   id_inscrito: number;
 
-  @ManyToOne(()=> Estudiante,estudiante => estudiante.inscritos)
+  @ManyToOne(()=> Estudiante,estudiante => estudiante.inscritos,{
+    eager:true
+  })
   @JoinColumn({name:'id_estudiante'})
   estudiante: Estudiante;
 
@@ -19,7 +21,9 @@ export class Inscrito {
   @Column({type:Date})
   fecha_inscripcion: Date;
 
-  @Column()
+  @Column({
+    default:estadoInscritos.ACTIVO
+  })
   estado: estadoInscritos;
 
   @CreateDateColumn()

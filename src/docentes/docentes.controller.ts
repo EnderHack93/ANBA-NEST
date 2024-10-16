@@ -2,6 +2,9 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/
 import { DocentesService } from './docentes.service';
 import { CreateDocenteDto } from './dto/create-docente.dto';
 import { UpdateDocenteDto } from './dto/update-docente.dto';
+import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
+import { query } from 'express';
+import { Docente } from './entities/docente.entity';
 
 @Controller('docentes')
 export class DocentesController {
@@ -13,8 +16,8 @@ export class DocentesController {
   }
 
   @Get()
-  findAll() {
-    return this.docentesService.findAll();
+  findAll(@Paginate() query:PaginateQuery):Promise<Paginated<Docente>> {
+    return this.docentesService.findAll(query);
   }
 
   @Get(':id')

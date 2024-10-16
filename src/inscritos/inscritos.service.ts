@@ -1,15 +1,64 @@
 import { Injectable } from '@nestjs/common';
 import { CreateInscritoDto } from './dto/create-inscrito.dto';
 import { UpdateInscritoDto } from './dto/update-inscrito.dto';
+import {
+  FilterOperator,
+  paginate,
+  Paginated,
+  PaginateQuery,
+} from 'nestjs-paginate';
+import { Inscrito } from './entities/inscrito.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Estudiante } from 'src/estudiantes/entities/estudiante.entity';
+import { Clase } from 'src/clases/entities/clase.entity';
 
 @Injectable()
 export class InscritosService {
-  create(createInscritoDto: CreateInscritoDto) {
-    return 'This action adds a new inscrito';
+  constructor(
+    @InjectRepository(Inscrito)
+    private readonly inscritosRepository: Repository<Inscrito>,
+    @InjectRepository(Estudiante)
+    private readonly estudianteRepository: Repository<Estudiante>,
+    @InjectRepository(Clase)
+    private readonly claseRepository: Repository<Clase>,
+  ) {}
+  async create(createInscritoDto: CreateInscritoDto) {
+    const inscritos = this.inscritosRepository.create(createInscritoDto);
+
+    const clase = await this.claseRepository.findOneBy({
+      id_clase: createInscritoDto.id_clase,
+    });
+
+    const estudiante = await this.estudianteRepository.findOneBy({
+      id_estudiante: createInscritoDto.id_estudiante,
+    });
+
+    return await this.inscritosRepository.save({
+      ...inscritos,
+      clase,
+      estudiante,
+    });
   }
 
-  findAll() {
-    return `This action returns all inscritos`;
+  findAll(query: PaginateQuery,id_clase:string): Promise<Paginated<Inscrito>> {
+    const queryBuilder = this.inscritosRepository
+    .createQueryBuilder('inscrito')
+    .leftJoinAndSelect('inscrito.clase', 'clase')
+    .leftJoinAndSelect('inscrito.estudiante', 'estudiante')
+    .where('inscrito.clase = :id_clase', { id_clase })
+
+    return paginate(query, queryBuilder, {
+      relations: ['clase', 'estudiante'],
+      sortableColumns: ['id_inscrito', 'fecha_inscripcion'],
+      searchableColumns: ['id_inscrito', 'fecha_inscripcion'],
+      defaultSortBy: [['id_inscrito', 'ASC']],
+      filterableColumns: {
+        fecha_inscripcion: [FilterOperator.ILIKE],
+        id_estudiante: [FilterOperator.ILIKE],
+        id_clase: [FilterOperator.ILIKE],
+      },
+    });
   }
 
   findOne(id: number) {
@@ -21,6 +70,8 @@ export class InscritosService {
   }
 
   remove(id: number) {
-    return `This action removes a #${id} inscrito`;
+    return this.inscritosRepository.delete({
+      id_inscrito: id,
+    });
   }
 }

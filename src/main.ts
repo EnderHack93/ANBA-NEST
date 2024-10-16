@@ -29,6 +29,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
   const config = new DocumentBuilder()
     .setTitle('ANBA NEST')
     .setDescription('API ANBA')
@@ -40,6 +41,6 @@ async function bootstrap() {
   
   app.enableCors()
 
-  await app.listen(8000);
+  await app.listen(8000,'0.0.0.0');
 }
 bootstrap();

@@ -9,14 +9,19 @@ import {
 } from 'class-validator';
 
 export class CreateEstudianteDto {
-  @IsString()
-  @MinLength(5)
+  @IsString({
+    message: 'El nombre debe ser una cadena de texto valida'
+  })
   nombres: string;
 
-  @IsString()
+  @IsString({
+    message: 'El apellido debe ser una cadena de texto valida'
+  })
   apellidos: string;
 
-  @IsString()
+  @IsString({
+    message: 'El carnet debe ser una cadena de texto valida'
+  })
   carnet: string;
 
   @IsEmail()
@@ -33,6 +38,5 @@ export class CreateEstudianteDto {
   telefono?: string;
 
   @IsNumber()
-  @IsOptional()
-  id_especialidad?: number;
+  id_especialidad: number;
 }

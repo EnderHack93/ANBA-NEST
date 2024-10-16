@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { MateriasService } from './materias.service';
 import { CreateMateriaDto } from './dto/create-materia.dto';
 import { UpdateMateriaDto } from './dto/update-materia.dto';
@@ -27,6 +27,11 @@ export class MateriasController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateMateriaDto: UpdateMateriaDto) {
     return this.materiasService.update(+id, updateMateriaDto);
+  }
+
+  @Put(':id')
+  changeState(@Param('id') id: string) {
+    return this.materiasService.changeState(+id);
   }
 
   @Delete(':id')

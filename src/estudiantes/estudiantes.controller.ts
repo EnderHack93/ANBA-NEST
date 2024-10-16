@@ -8,16 +8,28 @@ import {
   Delete,
   Put,
   Query,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
 } from '@nestjs/common';
 import { EstudiantesService } from './estudiantes.service';
 import { CreateEstudianteDto } from './dto/create-estudiante.dto';
 import { UpdateEstudianteDto } from './dto/update-estudiante.dto';
 import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { Estudiante } from './entities/estudiante.entity';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { FileInterceptor } from '@nest-lab/fastify-multer';
+import { query } from 'express';
+import { Inscrito } from 'src/inscritos/entities/inscrito.entity';
 
 @Controller('estudiantes')
 export class EstudiantesController {
-  constructor(private readonly estudiantesService: EstudiantesService) {}
+  constructor(
+    private readonly estudiantesService: EstudiantesService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Post()
   create(@Body() createEstudianteDto: CreateEstudianteDto) {
@@ -27,6 +39,20 @@ export class EstudiantesController {
   @Get()
   findAll(@Paginate() query: PaginateQuery): Promise<Paginated<Estudiante>> {
     return this.estudiantesService.findAll(query);
+  }
+
+  @Get("noInscritos")
+  findEstudiantesNoInscritos(
+    @Paginate() query: PaginateQuery,
+    @Query('id_clase') id_clase: string,
+    @Query('id_materia')
+    id_materia: string,
+  ): Promise<Paginated<Inscrito>> {
+    return this.estudiantesService.findEstudiantesNoInscritos(
+      query,
+      id_clase,
+      id_materia,
+    );
   }
 
   @Get(':id')
@@ -39,6 +65,7 @@ export class EstudiantesController {
     @Param('id') id: string,
     @Body() updateEstudianteDto: UpdateEstudianteDto,
   ) {
+    console.log(updateEstudianteDto);
     return this.estudiantesService.update(id, updateEstudianteDto);
   }
 
@@ -49,5 +76,21 @@ export class EstudiantesController {
   @Put(':id')
   changeState(@Param('id') id: string) {
     return this.estudiantesService.changeState(id);
+  }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadFile(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 4 }),
+          new FileTypeValidator({ fileType: '.(jpg|jpeg|png)' }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    return this.cloudinaryService.uploadFile(file);
   }
 }

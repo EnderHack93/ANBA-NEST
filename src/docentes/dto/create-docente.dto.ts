@@ -1,9 +1,9 @@
-import { IsDateString, IsEmail, IsOptional, IsString, IsStrongPassword, MinLength } from "class-validator";
+import { Transform } from "class-transformer";
+import { IsDateString, IsEmail, IsNumber, IsOptional, IsString, IsStrongPassword, MinLength } from "class-validator";
 
 export class CreateDocenteDto {
 
   @IsString()
-  @MinLength(5)
   nombres: string;
 
   @IsString()
@@ -16,6 +16,7 @@ export class CreateDocenteDto {
   correo: string;
 
   @IsStrongPassword()
+  @Transform(({ value }) => value.trim())
   password: string;
   
   @IsDateString()
@@ -25,7 +26,6 @@ export class CreateDocenteDto {
   @IsOptional()
   telefono?: string;
 
-  @IsString()
-  @IsOptional()
-  id_especialidad?:string
+  @IsNumber()
+  id_especialidad:number
 }

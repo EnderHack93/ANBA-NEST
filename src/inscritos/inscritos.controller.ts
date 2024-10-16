@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { InscritosService } from './inscritos.service';
 import { CreateInscritoDto } from './dto/create-inscrito.dto';
 import { UpdateInscritoDto } from './dto/update-inscrito.dto';
+import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
+import { Inscrito } from './entities/inscrito.entity';
 
 @Controller('inscritos')
 export class InscritosController {
@@ -13,8 +15,8 @@ export class InscritosController {
   }
 
   @Get()
-  findAll() {
-    return this.inscritosService.findAll();
+  findAll(@Paginate() query:PaginateQuery,@Query('id_clase') id_clase:string):Promise<Paginated<Inscrito>> {
+    return this.inscritosService.findAll(query,id_clase);
   }
 
   @Get(':id')

@@ -7,10 +7,12 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   UpdateDateColumn,
 } from 'typeorm';
 import { EstadoDocentes } from './estado.enum';
 import { Clase } from 'src/clases/entities/clase.entity';
+import { Usuario } from 'src/usuarios/entities/usuario.entity';
 
 @Entity()
 export class Docente {
@@ -24,13 +26,10 @@ export class Docente {
   apellidos: string;
 
   @Column({ unique: true })
-  correo: string;
-
-  @Column()
-  password: string;
-
-  @Column({ unique: true })
   carnet: string;
+
+  @Column({ nullable: true })
+  fecha_nacimiento: Date;
 
   @Column({ nullable: true })
   telefono: string;
@@ -59,4 +58,8 @@ export class Docente {
 
   @OneToMany(() => Clase, (clase) => clase.id_clase)
   clases: Clase[];
+
+  @OneToOne(() => Usuario, (usuario) => usuario.estudiante)
+  @JoinColumn({ name: 'id_usuario' })
+  usuario: Usuario;
 }

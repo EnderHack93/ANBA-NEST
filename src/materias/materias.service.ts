@@ -27,16 +27,16 @@ export class MateriasService {
     const materia = this.materiaRepository.create(createMateriaDto);
 
     const especialidad = await this.especialidadRepository.findOneBy({
-      nombre: createMateriaDto.id_especialidad,
+      id_especialidad: createMateriaDto.id_especialidad,
     });
 
     if (!especialidad) {
       throw new BadRequestException('Especialidad no existe');
     }
 
-    if (especialidad.estado == EstadoEspecialidad.INACTIVO) {
-      throw new BadRequestException('Especialidad inactiva');
-    }
+    // if (especialidad.estado == EstadoEspecialidad.INACTIVO) {
+    //   throw new BadRequestException('Especialidad inactiva');
+    // }
 
     return await this.materiaRepository.save({
       ...materia,
@@ -46,13 +46,15 @@ export class MateriasService {
 
   async findAll(query: PaginateQuery): Promise<Paginated<Materia>> {
     return paginate(query, this.materiaRepository, {
+      relations: ['especialidad'],
       sortableColumns: ['id_materia', 'nombre'],
-      searchableColumns: ['id_materia', 'nombre'],
+      searchableColumns: ['id_materia', 'nombre','especialidad.nombre','semestre'],
       defaultSortBy: [['id_materia', 'ASC']],
       filterableColumns: {
         estado: [FilterOperator.EQ],
         nombre: [FilterOperator.ILIKE],
         semestre: [FilterOperator.ILIKE],
+        "especialidad.nombre": [FilterOperator.ILIKE],
       },
     });
   }
@@ -64,10 +66,39 @@ export class MateriasService {
   }
 
   async update(id: number, updateMateriaDto: UpdateMateriaDto) {
-    return await this.materiaRepository.update(id, updateMateriaDto);
+    const materia = await this.materiaRepository.findOneBy({
+      id_materia: id,
+    });
+
+    if (!materia) {
+      throw new BadRequestException('Materia no existe');
+    }
+
+    const especialidad = await this.especialidadRepository.findOneBy({
+      id_especialidad: updateMateriaDto.id_especialidad,
+    });
+
+    if (!especialidad) {
+      throw new BadRequestException('Especialidad no existe');
+    }
+
+    // if (especialidad.estado == EstadoEspecialidad.INACTIVO) {
+    //   throw new BadRequestException('Especialidad inactiva');
+    // }
+
+    materia.especialidad = especialidad;
+    delete updateMateriaDto.id_especialidad;
+    Object.assign(materia,updateMateriaDto)
+
+    return await this.materiaRepository.update(id,materia);
   }
 
   async remove(id: number) {
+    return await this.materiaRepository.delete(id)
+  }
+
+
+  async changeState(id: number) {
     const materia = await this.materiaRepository.findOneBy({
       id_materia: id,
     });

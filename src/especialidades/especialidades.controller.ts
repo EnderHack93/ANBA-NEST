@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { EspecialidadesService } from './especialidades.service';
 import { CreateEspecialidadDto } from './dto/create-especialidad.dto';
 import { UpdateEspecialidadDto } from './dto/update-especialidad.dto';
+import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 
 @Controller('especialidades')
 export class EspecialidadesController {
@@ -13,8 +14,8 @@ export class EspecialidadesController {
   }
 
   @Get()
-  findAll() {
-    return this.especialidadesService.findAll();
+  findAll(@Paginate() query:PaginateQuery):Promise<Paginated<any>> {
+    return this.especialidadesService.findAll(query);
   }
 
   @Get(':id')

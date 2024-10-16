@@ -8,15 +8,18 @@ import {
   ManyToMany,
   ManyToOne,
   OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { EstadoEst } from './estado.enum';
 import { Clase } from 'src/clases/entities/clase.entity';
 import { Inscrito } from 'src/inscritos/entities/inscrito.entity';
+import { Usuario } from 'src/usuarios/entities/usuario.entity';
 
 @Entity()
 export class Estudiante {
-  @Column({ primary: true })
+  @PrimaryGeneratedColumn()
   id_estudiante: string;
 
   @Column()
@@ -39,6 +42,11 @@ export class Estudiante {
 
   @Column()
   password: string;
+  
+  @Column({
+    default: 'https://res.cloudinary.com/dvxqmtrlf/image/upload/v1727586181/ztxvun4l6l2y0pfuqca0.png',
+  })
+  img_perfil:string
 
   @Column({ default:EstadoEst.ACTIVO})
   estado: EstadoEst;
@@ -61,5 +69,8 @@ export class Estudiante {
   @OneToMany(() => Inscrito, inscritos => inscritos.estudiante)
   inscritos: Inscrito[]
 
+  @OneToOne(() => Usuario, (usuario) => usuario.estudiante)
+  @JoinColumn({ name: 'id_usuario' })
+  usuario: Usuario;
   
 }
