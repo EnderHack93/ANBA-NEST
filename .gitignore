@@ -4,6 +4,7 @@
 /build
 data
 .vscode
+docker-compose.yml
 
 # Logs
 logs
