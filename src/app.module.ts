@@ -16,14 +16,18 @@ import { UsuariosModule } from './usuarios/usuarios.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+    isGlobal: true,
+      envFilePath: '.env',
+    }),
     EstudiantesModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5433,
-      username: 'postgres',
-      password: 'pass',
-      database: 'ANBA-DB',
+      host: process.env.POSTGRES_HOST,
+      port: Number(process.env.POSTGRES_PORT),
+      username: process.env.POSTGRES_USERNAME,
+      password: process.env.POSTGRES_PASSWORD,
+      database: process.env.POSTGRES_DATABASE,
       synchronize: true,
       autoLoadEntities: true,
     }),
@@ -33,10 +37,6 @@ import { UsuariosModule } from './usuarios/usuarios.module';
     ClasesModule,
     InscritosModule,
     CloudinaryModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env',
-    }),
     FastifyMulterModule,
     AuthModule,
     EstadoModule,
