@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   IsDateString,
   IsEmail,
@@ -28,6 +29,7 @@ export class CreateEstudianteDto {
   correo: string;
 
   @IsStrongPassword()
+  @Transform(({ value }) => value.trim())
   password: string;
 
   @IsDateString()

@@ -12,7 +12,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EstadoMateria } from './entities/estado.enum';
 import { Especialidad } from 'src/especialidades/entities/especialidad.entity';
-import { EstadoEspecialidad } from 'src/especialidades/entities/estado.enum';
+import { EnumEstados } from 'src/common/enums/estados.enum';
+import { EstadoService } from 'src/estados/estado.service';
+import { SemestreService } from 'src/semestre/semestre.service';
 
 @Injectable()
 export class MateriasService {
@@ -21,10 +23,24 @@ export class MateriasService {
     private readonly materiaRepository: Repository<Materia>,
     @InjectRepository(Especialidad)
     private readonly especialidadRepository: Repository<Especialidad>,
+    private readonly estadoService: EstadoService,
+    private readonly semestreService: SemestreService
+
   ) {}
 
   async create(createMateriaDto: CreateMateriaDto) {
-    const materia = this.materiaRepository.create(createMateriaDto);
+    const semestre = await this.semestreService.findOne(createMateriaDto.id_semestre);
+    const estado = await this.estadoService.findByName(EnumEstados.ACTIVO)
+
+    if (!semestre) {
+      throw new BadRequestException('Semestre no encontrado');
+    }
+
+    const materia = this.materiaRepository.create({
+      ...createMateriaDto,
+      semestre,
+      estado
+    });
 
     const especialidad = await this.especialidadRepository.findOneBy({
       id_especialidad: createMateriaDto.id_especialidad,
@@ -34,9 +50,9 @@ export class MateriasService {
       throw new BadRequestException('Especialidad no existe');
     }
 
-    // if (especialidad.estado == EstadoEspecialidad.INACTIVO) {
-    //   throw new BadRequestException('Especialidad inactiva');
-    // }
+    if (especialidad.estado.nombre == EnumEstados.INACTIVO) {
+      throw new BadRequestException('Especialidad inactiva');
+    }
 
     return await this.materiaRepository.save({
       ...materia,
@@ -46,9 +62,9 @@ export class MateriasService {
 
   async findAll(query: PaginateQuery): Promise<Paginated<Materia>> {
     return paginate(query, this.materiaRepository, {
-      relations: ['especialidad'],
+      relations: ['especialidad','estado','semestre'],
       sortableColumns: ['id_materia', 'nombre'],
-      searchableColumns: ['id_materia', 'nombre','especialidad.nombre','semestre'],
+      searchableColumns: ['id_materia', 'nombre','especialidad.nombre'],
       defaultSortBy: [['id_materia', 'ASC']],
       filterableColumns: {
         estado: [FilterOperator.EQ],
@@ -60,10 +76,28 @@ export class MateriasService {
   }
 
   async findOne(id: number) {
-    return await this.materiaRepository.findOneBy({
-      id_materia: id,
+    return await this.materiaRepository.findOne({
+      where: {
+        id_materia: id,
+      },
+      relations: ['especialidad','estado','semestre'],
     });
   }
+
+  async findMateriasBySemestre(id_semestre: number) {
+    const semestre = await this.semestreService.findOne(id_semestre);
+
+    if (!semestre) {
+      throw new BadRequestException('Semestre no encontrado');
+    }
+
+    return await this.materiaRepository.find({
+      where: {
+        semestre,
+      },
+    });
+  }
+  
 
   async update(id: number, updateMateriaDto: UpdateMateriaDto) {
     const materia = await this.materiaRepository.findOneBy({
@@ -82,9 +116,9 @@ export class MateriasService {
       throw new BadRequestException('Especialidad no existe');
     }
 
-    // if (especialidad.estado == EstadoEspecialidad.INACTIVO) {
-    //   throw new BadRequestException('Especialidad inactiva');
-    // }
+    if (especialidad.estado.nombre == EnumEstados.INACTIVO) {
+      throw new BadRequestException('Especialidad inactiva');
+    }
 
     materia.especialidad = especialidad;
     delete updateMateriaDto.id_especialidad;
@@ -103,10 +137,25 @@ export class MateriasService {
       id_materia: id,
     });
 
-    materia.estado =
-      materia.estado === EstadoMateria.ACTIVO
-        ? EstadoMateria.INACTIVO
-        : EstadoMateria.ACTIVO;
+    if (!materia) {
+      throw new BadRequestException('Especialidad no encontrada');
+    }
+
+    const estado = materia.estado;
+
+    if (!estado) {
+      throw new BadRequestException('Estado no encontrado');
+    }
+
+    if(estado.nombre === EnumEstados.ACTIVO){
+      const newEstado = await this.estadoService.findByName(EnumEstados.ACTIVO);
+      materia.estado = newEstado;
+    }
+
+    if(estado.nombre === EnumEstados.INACTIVO){
+      const newEstado = await this.estadoService.findByName(EnumEstados.INACTIVO);
+      materia.estado = newEstado;
+    }
 
     return await this.materiaRepository.save(materia);
   }

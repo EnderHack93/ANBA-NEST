@@ -11,6 +11,8 @@ import {
 } from 'typeorm';
 import { EstadoMateria } from './estado.enum';
 import { Clase } from 'src/clases/entities/clase.entity';
+import { Estado } from 'src/estados/entites/estado.entity';
+import { Semestre } from 'src/semestre/entities/semestre.entity';
 
 @Entity()
 export class Materia {
@@ -22,14 +24,6 @@ export class Materia {
 
   @Column()
   descripcion: string;
-
-  @Column()
-  semestre: string;
-
-  @Column({
-    default: EstadoMateria.ACTIVO,
-  })
-  estado: EstadoMateria;
 
   @CreateDateColumn()
   created_at: Date;
@@ -49,4 +43,12 @@ export class Materia {
 
   @OneToMany(() => Clase, (clase) => clase.id_clase)
   clases: Clase[];
+
+  @ManyToOne(()=> Semestre, (semestre) => semestre.id_semestre,)
+  @JoinColumn({ name: 'id_semestre' })
+  semestre: Semestre;
+
+  @ManyToOne(() => Estado, (estado) => estado.nombre, {eager:true})
+  @JoinColumn({ name: 'id_estado'})
+  estado: Estado;
 }

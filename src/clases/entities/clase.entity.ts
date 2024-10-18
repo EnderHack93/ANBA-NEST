@@ -13,6 +13,7 @@ import { estado, horarios } from './clase.enum';
 import { Docente } from 'src/docentes/entities/docente.entity';
 import { Materia } from 'src/materias/entities/materia.entity';
 import { Inscrito } from 'src/inscritos/entities/inscrito.entity';
+import { Asistencia } from 'src/asistencia/entities/asistencia.entity';
 
 @Entity()
 export class Clase {
@@ -30,9 +31,6 @@ export class Clase {
 
   @Column()
   aula: string;
-
-  @Column()
-  gestion: string;
 
   @Column({default:estado.ACTIVO})
   estado: estado;
@@ -57,5 +55,8 @@ export class Clase {
 
   @OneToMany(() => Inscrito, inscritos => inscritos.clase)
   inscritos: Inscrito[];
+
+  @OneToMany(() => Asistencia, asistencia => asistencia.clase)
+  asistencias: Asistencia[];
   
 }

@@ -10,7 +10,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Docente } from './entities/docente.entity';
 import { Repository } from 'typeorm';
 import { Especialidad } from 'src/especialidades/entities/especialidad.entity';
-import { EstadoEspecialidad } from 'src/especialidades/entities/estado.enum';
 import * as bcryptjs from 'bcryptjs';
 import { EstadoDocentes } from './entities/estado.enum';
 import {
@@ -25,6 +24,7 @@ import { UsuariosService } from 'src/usuarios/usuarios.service';
 import { Estados } from 'src/estados/enum/estado.enum';
 import { CreateUsuarioDto } from 'src/usuarios/dto/create-usuario.dto';
 import { EnumRoles } from 'src/common/enums/roles.enum';
+import { EnumEstados } from 'src/common/enums/estados.enum';
 
 @Injectable()
 export class DocentesService {
@@ -42,6 +42,7 @@ export class DocentesService {
       await this.validateUniqueValues(createDocenteDto);
 
       const docenteDto = this.docenteRepository.create(createDocenteDto);
+      
       const username = await this.genId(
         createDocenteDto.nombres,
         createDocenteDto.apellidos,
@@ -58,7 +59,7 @@ export class DocentesService {
         throw new BadRequestException('Especialidad no existe');
       }
 
-      if (especialidad.estado.nombre == Estados.INACTIVO) {
+      if (especialidad.estado.nombre == EnumEstados.INACTIVO) {
         throw new BadRequestException('Especialidad inactiva');
       }
 

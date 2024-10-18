@@ -4,8 +4,8 @@ export class CreateMateriaDto {
   @IsString()
   nombre: string;
 
-  @IsString()
-  semestre: string;
+  @IsNumber()
+  id_semestre: number;
 
   @IsString()
   descripcion: string;

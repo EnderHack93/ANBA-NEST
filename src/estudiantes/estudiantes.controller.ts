@@ -43,14 +43,10 @@ export class EstudiantesController {
 
   @Get("noInscritos")
   findEstudiantesNoInscritos(
-    @Paginate() query: PaginateQuery,
-    @Query('id_clase') id_clase: string,
     @Query('id_materia')
-    id_materia: string,
-  ): Promise<Paginated<Inscrito>> {
-    return this.estudiantesService.findEstudiantesNoInscritos(
-      query,
-      id_clase,
+    id_materia: number,
+  ) {
+    return this.estudiantesService.getEstudiantesPorMateria(
       id_materia,
     );
   }

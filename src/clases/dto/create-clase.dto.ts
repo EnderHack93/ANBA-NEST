@@ -15,9 +15,6 @@ export class CreateClaseDto {
   @IsString()
   aula:string
 
-  @IsString()
-  gestion:string
-
   @IsNumber()
   id_materia:number
 

@@ -34,6 +34,12 @@ export class Docente {
   @Column({ nullable: true })
   telefono: string;
 
+  @Column({
+    default: 'https://res.cloudinary.com/dvxqmtrlf/image/upload/v1727586181/ztxvun4l6l2y0pfuqca0.png',
+  })
+  img_perfil:string
+  
+
   @Column({ default: EstadoDocentes.ACTIVO })
   estado: EstadoDocentes;
 

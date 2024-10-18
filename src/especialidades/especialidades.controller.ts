@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { EspecialidadesService } from './especialidades.service';
 import { CreateEspecialidadDto } from './dto/create-especialidad.dto';
 import { UpdateEspecialidadDto } from './dto/update-especialidad.dto';
@@ -26,6 +26,11 @@ export class EspecialidadesController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateEspecialidadeDto: UpdateEspecialidadDto) {
     return this.especialidadesService.update(+id, updateEspecialidadeDto);
+  }
+
+  @Put(":id")
+  changeState(@Param('id') id: number) {
+    return this.especialidadesService.changeState(id);
   }
 
   @Delete(':id')

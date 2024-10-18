@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Estado } from './entites/estado.entity';
 import { CreateEstadoDto } from './dto/create-estado.dto';
 import { UpdateEstadoDto } from './dto/update-estado.dto';
+import { EnumEstados } from 'src/common/enums/estados.enum';
 
 @Injectable()
 export class EstadoService {
@@ -13,9 +14,20 @@ export class EstadoService {
   ) {}
 
   // Crear un nuevo estado
-  async create(createEstadoDto: CreateEstadoDto): Promise<Estado> {
+  async create(createEstadoDto: CreateEstadoDto) {
+    await this.validateIfExists(createEstadoDto)
     const nuevoEstado = this.estadoRepository.create(createEstadoDto);
     return this.estadoRepository.save(nuevoEstado);
+  }
+
+  // Validar si el estado ya existe
+  async validateIfExists({nombre}: CreateEstadoDto) {
+    const estado = await this.estadoRepository.findOneBy({nombre});
+    if (estado) {
+      throw new BadRequestException(
+        `El estado ${nombre} ya existe`,
+      );
+    }
   }
 
   // Obtener todos los estados
@@ -33,10 +45,10 @@ export class EstadoService {
   }
 
   // Obtener un estado por nombre
-  async findByName(nombre: string): Promise<Estado> {
+  async findByName(nombre: EnumEstados): Promise<Estado> {
     const estado = await this.estadoRepository.findOneBy({ nombre });
     if (!estado) {
-      throw new NotFoundException(`Estado con nombre ${name} no encontrado`);
+      throw new NotFoundException(`Estado con nombre ${nombre} no encontrado`);
     }
     return estado;
   }

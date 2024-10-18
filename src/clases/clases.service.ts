@@ -15,6 +15,7 @@ import { Materia } from 'src/materias/entities/materia.entity';
 import { Docente } from 'src/docentes/entities/docente.entity';
 import { EstadoMateria } from 'src/materias/entities/estado.enum';
 import { EstadoDocentes } from 'src/docentes/entities/estado.enum';
+import { EnumEstados } from 'src/common/enums/estados.enum';
 
 @Injectable()
 export class ClasesService {
@@ -37,7 +38,7 @@ export class ClasesService {
       throw new BadRequestException('Materia no encontrada');
     }
 
-    if (materia.estado == EstadoMateria.INACTIVO) {
+    if (materia.estado.nombre == EnumEstados.INACTIVO) {
       throw new BadRequestException('Materia inactiva');
     }
 
@@ -67,10 +68,11 @@ export class ClasesService {
       .createQueryBuilder('clase')
       .leftJoinAndSelect('clase.materia', 'materia')
       .leftJoinAndSelect('materia.especialidad', 'especialidad')
+      .leftJoinAndSelect('materia.semestre', 'semestre')
       .leftJoinAndSelect('clase.docente', 'docente')
 
     return paginate(query, clases, {
-      relations: ['materia', 'docente','materia.especialidad'],
+      relations: ['materia', 'docente','materia.especialidad','materia.semestre'],
       sortableColumns: ['id_clase', 'nombre'],
       searchableColumns: ['id_clase', 'nombre'],
       defaultSortBy: [['id_clase', 'ASC']],
@@ -86,8 +88,11 @@ export class ClasesService {
   }
 
   async findOne(id: number) {
-    return await this.claseRepository.findOneBy({
-      id_clase: id,
+    return await this.claseRepository.findOne({
+      where: {
+        id_clase: id,
+      },
+      relations: ['materia', 'docente','materia.semestre'],
     });
   }
 

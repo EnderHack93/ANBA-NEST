@@ -6,11 +6,13 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
 } from 'typeorm';
 import { Estudiante } from 'src/estudiantes/entities/estudiante.entity';
 import { Docente } from 'src/docentes/entities/docente.entity';
 import { Estados } from 'src/estados/enum/estado.enum';
 import { EnumRoles } from 'src/common/enums/roles.enum';
+import { Estado } from 'src/estados/entites/estado.entity';
 
 @Entity()
 export class Usuario {
@@ -26,9 +28,6 @@ export class Usuario {
   @Column({ select: false })
   password: string;
 
-  @Column({ enum: Estados, default: Estados.ACTIVO })
-  estado: string;
-
   @Column({ type: 'enum', enum: EnumRoles, default: EnumRoles.ESTUDIANTE })
   rol: string;
 
@@ -43,4 +42,8 @@ export class Usuario {
 
   @OneToOne(() => Docente, (docente) => docente.usuario)
   docente: Docente;
+
+  @ManyToOne(() => Estado, (estado) => estado.nombre, {eager:true})
+  @JoinColumn({ name: 'id_estado'})
+  estado: Estado;
 }

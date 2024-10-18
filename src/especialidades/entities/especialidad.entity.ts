@@ -9,7 +9,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { EstadoEspecialidad } from './estado.enum';
 import { Docente } from 'src/docentes/entities/docente.entity';
 import { Materia } from 'src/materias/entities/materia.entity';
 import { Estado } from 'src/estados/entites/estado.entity';

@@ -3,6 +3,7 @@ import { CreateEstadoDto } from "./dto/create-estado.dto";
 import { UpdateEstadoDto } from "./dto/update-estado.dto";
 import { Estado } from "./entites/estado.entity";
 import { EstadoService } from "./estado.service";
+import { EnumEstados } from "src/common/enums/estados.enum";
 
 
 @Controller('estados')
@@ -11,8 +12,8 @@ export class EstadoController {
 
   // Crear un nuevo estado
   @Post()
-  async create(@Body() createEstadoDto: CreateEstadoDto): Promise<Estado> {
-    return this.estadoService.create(createEstadoDto);
+  async create(@Body() createEstadoDto: CreateEstadoDto) {
+    return await this.estadoService.create(createEstadoDto);
   }
 
   // Obtener todos los estados
@@ -29,7 +30,7 @@ export class EstadoController {
 
   // Obtener un estado por nombre
   @Get('nombre/:nombre')
-  async findByName(@Param('nombre') nombre: string): Promise<Estado> {
+  async findByName(@Param('nombre') nombre: EnumEstados) {
     return this.estadoService.findByName(nombre);
   }
 

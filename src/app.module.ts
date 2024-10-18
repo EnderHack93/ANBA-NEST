@@ -13,6 +13,7 @@ import { AuthModule } from './auth/auth.module';
 import { EstadoModule } from './estados/estado.module';
 import { SemestreModule } from './semestre/semestre.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
+import { AsistenciaModule } from './asistencia/asistencia.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { UsuariosModule } from './usuarios/usuarios.module';
     EstadoModule,
     SemestreModule,
     UsuariosModule,
+    AsistenciaModule,
   ],
 })
 export class AppModule {}
