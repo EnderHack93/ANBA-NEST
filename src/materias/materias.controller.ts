@@ -4,7 +4,9 @@ import { CreateMateriaDto } from './dto/create-materia.dto';
 import { UpdateMateriaDto } from './dto/update-materia.dto';
 import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { Materia } from './entities/materia.entity';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Materias")
 @Controller('materias')
 export class MateriasController {
   constructor(private readonly materiasService: MateriasService) {}

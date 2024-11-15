@@ -6,18 +6,27 @@ import { EnumRoles } from '../../common/enums/roles.enum';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
+  //Obtener los roles requeridos de la ruta
   constructor(private readonly reflector: Reflector) {}
   canActivate(context: ExecutionContext): boolean {
-    const rol = this.reflector.getAllAndOverride<EnumRoles >(ROLES_KEY, [
+    const requiredRoles = this.reflector.getAllAndOverride<EnumRoles[]>(ROLES_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
-    if (!rol) {
+    // Si no hay roles requeridos, permitir el acceso (rutas públicas o comunes)
+    if (!requiredRoles) {
       return true;
     }
 
+    // Obtener el usuario de la solicitud
     const { user } = context.switchToHttp().getRequest();
 
-    return rol === user.rol;
+    // Permitir acceso completo al rol de ADMINISTRADOR
+    if (user?.rol === EnumRoles.ADMIN) {
+      return true;
+    }
+
+    // Verificar si el rol del usuario está en la lista de roles requeridos
+    return requiredRoles.includes(user?.rol);
   }
 }

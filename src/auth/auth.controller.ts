@@ -6,7 +6,10 @@ import { EnumRoles } from '../common/enums/roles.enum';
 import { Auth } from './decorators/auth.decorator';
 import { ActiveUser } from 'src/common/decorators/active-user.decorators';
 import { UserInterfaceActive } from 'src/common/interfaces/user-active.interface';
+import { ApiTags } from '@nestjs/swagger';
+import { RefreshTokenDto } from './dto/refresh.dto';
 
+@ApiTags("Auth")
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -17,8 +20,13 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
+  @Post('refresh')
+  async refreshToken(@Body() refreshToken:RefreshTokenDto){
+    return this.authService.refreshTokens(refreshToken);
+  }
+
   @Get('check')
-  @Auth(EnumRoles.ESTUDIANTE)
+  @Auth(EnumRoles.ESTUDIANTE,EnumRoles.DOCENTE)
   check(
     @ActiveUser() user:UserInterfaceActive
   ) {

@@ -10,5 +10,6 @@ import { Estudiante } from 'src/estudiantes/entities/estudiante.entity';
   imports: [TypeOrmModule.forFeature([Inscrito,Clase,Estudiante])],
   controllers: [InscritosController],
   providers: [InscritosService],
+  exports: [InscritosService],
 })
 export class InscritosModule {}

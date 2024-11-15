@@ -23,8 +23,14 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { FileInterceptor } from '@nest-lab/fastify-multer';
 import { query } from 'express';
 import { Inscrito } from 'src/inscritos/entities/inscrito.entity';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { EnumRoles } from 'src/common/enums/roles.enum';
 
+@ApiTags("Estudiantes")
 @Controller('estudiantes')
+@ApiBearerAuth()
+@Auth(EnumRoles.ADMIN,EnumRoles.DOCENTE)
 export class EstudiantesController {
   constructor(
     private readonly estudiantesService: EstudiantesService,
@@ -70,6 +76,7 @@ export class EstudiantesController {
     return this.estudiantesService.remove(id);
   }
   @Put(':id')
+  @Auth(EnumRoles.DOCENTE)
   changeState(@Param('id') id: string) {
     return this.estudiantesService.changeState(id);
   }

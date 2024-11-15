@@ -65,7 +65,7 @@ export class Docente {
   @OneToMany(() => Clase, (clase) => clase.id_clase)
   clases: Clase[];
 
-  @OneToOne(() => Usuario, (usuario) => usuario.estudiante)
+  @OneToOne(() => Usuario, (usuario) => usuario.docente,{eager:true})
   @JoinColumn({ name: 'id_usuario' })
   usuario: Usuario;
 }

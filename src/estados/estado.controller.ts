@@ -4,8 +4,9 @@ import { UpdateEstadoDto } from "./dto/update-estado.dto";
 import { Estado } from "./entites/estado.entity";
 import { EstadoService } from "./estado.service";
 import { EnumEstados } from "src/common/enums/estados.enum";
+import { ApiTags } from "@nestjs/swagger";
 
-
+@ApiTags("Estados")
 @Controller('estados')
 export class EstadoController {
   constructor(private readonly estadoService: EstadoService) {}

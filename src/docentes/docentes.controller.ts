@@ -5,7 +5,9 @@ import { UpdateDocenteDto } from './dto/update-docente.dto';
 import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { query } from 'express';
 import { Docente } from './entities/docente.entity';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Docentes")
 @Controller('docentes')
 export class DocentesController {
   constructor(private readonly docentesService: DocentesService) {}

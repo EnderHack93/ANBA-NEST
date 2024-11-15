@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { Repository } from 'typeorm';
@@ -6,6 +6,7 @@ import { Usuario } from './entities/usuario.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EstadoService } from 'src/estados/estado.service';
 import { EnumEstados } from 'src/common/enums/estados.enum';
+import { DocentesService } from 'src/docentes/docentes.service';
 
 @Injectable()
 export class UsuariosService {
@@ -13,6 +14,8 @@ export class UsuariosService {
     @InjectRepository(Usuario)
     private readonly usuariosRepository: Repository<Usuario>,
     private readonly estadoService: EstadoService,
+    @Inject(forwardRef(() => DocentesService))
+    private readonly docentesService:DocentesService
   ) {}
   async create(createUsuarioDto: CreateUsuarioDto) {
     try {
@@ -52,6 +55,18 @@ export class UsuariosService {
     });
 
     return user;
+  }
+
+  async getProfileInfo(id:string){
+    const docente = await this.docentesService.findDocenteProfileInfo(id)
+    const usuario = await this.usuariosRepository.findOne({
+      where: {
+        username: id,
+      },
+      select: ['id_usuario', 'username', 'email', 'rol'],
+    })
+    docente.usuario = usuario
+    return docente;
   }
 
   async findByEmailwithPassword(email: string) {

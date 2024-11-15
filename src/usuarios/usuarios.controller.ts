@@ -2,7 +2,13 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { UserInterfaceActive } from 'src/common/interfaces/user-active.interface';
+import { ActiveUser } from 'src/common/decorators/active-user.decorators';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { EnumRoles } from 'src/common/enums/roles.enum';
 
+@ApiTags("Usuarios")
 @Controller('usuarios')
 export class UsuariosController {
   constructor(private readonly usuariosService: UsuariosService) {}
@@ -20,6 +26,13 @@ export class UsuariosController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usuariosService.findOne(+id);
+  }
+
+  @ApiBearerAuth()
+  @Get('profile')
+  @Auth(EnumRoles.ADMIN)
+  getProfileInfo(@ActiveUser() user:UserInterfaceActive){
+    return this.usuariosService.getProfileInfo(user.id);
   }
 
   @Patch(':id')

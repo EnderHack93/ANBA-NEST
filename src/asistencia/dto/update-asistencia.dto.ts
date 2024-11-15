@@ -1,4 +1,10 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateAsistenciaDto } from './create-asistencia.dto';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { EnumAsistencia } from '../enums/asistencia.enum';
+import { IsEnum, IsNumber } from 'class-validator';
 
-export class UpdateAsistenciaDto extends PartialType(CreateAsistenciaDto) {}
+export class UpdateAsistenciaDto {
+
+  @ApiProperty()
+  @IsEnum(EnumAsistencia)
+  nuevoEstado: EnumAsistencia;
+}

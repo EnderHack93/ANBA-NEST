@@ -4,7 +4,9 @@ import { CreateInscritoDto } from './dto/create-inscrito.dto';
 import { UpdateInscritoDto } from './dto/update-inscrito.dto';
 import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { Inscrito } from './entities/inscrito.entity';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Inscritos")
 @Controller('inscritos')
 export class InscritosController {
   constructor(private readonly inscritosService: InscritosService) {}

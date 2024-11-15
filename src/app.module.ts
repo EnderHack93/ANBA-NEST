@@ -14,6 +14,8 @@ import { EstadoModule } from './estados/estado.module';
 import { SemestreModule } from './semestre/semestre.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { AsistenciaModule } from './asistencia/asistencia.module';
+import { SecurityModule } from './security/security.module';
+import { AdministradoresModule } from './administradores/administradores.module';
 
 @Module({
   imports: [
@@ -44,6 +46,8 @@ import { AsistenciaModule } from './asistencia/asistencia.module';
     SemestreModule,
     UsuariosModule,
     AsistenciaModule,
+    SecurityModule,
+    AdministradoresModule,
   ],
 })
 export class AppModule {}

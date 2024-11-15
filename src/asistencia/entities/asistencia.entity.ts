@@ -16,7 +16,7 @@ export class Asistencia {
     @JoinColumn({name:"id_estudiante"})
     estudiante:Estudiante
 
-    @Column({type:Date})
+    @Column({type:'date',nullable:true})
     fecha:Date
 
     @Column({type:"enum",enum:EnumAsistencia, default:EnumAsistencia.FALTO})

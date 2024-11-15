@@ -1,7 +1,10 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateDocenteDto } from './dto/create-docente.dto';
 import { UpdateDocenteDto } from './dto/update-docente.dto';
@@ -34,6 +37,7 @@ export class DocentesService {
     @InjectRepository(Especialidad)
     private readonly especialidadRepository: Repository<Especialidad>,
     private readonly estadoService: EstadoService,
+    @Inject(forwardRef(()=>UsuariosService))
     private readonly userService: UsuariosService,
   ) {}
   async create(createDocenteDto: CreateDocenteDto) {
@@ -119,6 +123,29 @@ export class DocentesService {
     return await this.docenteRepository.findOneBy({ id_docente: id });
   }
 
+  async findDocenteProfileInfo(id_docente: string) {
+    const docenteRepository = this.docenteRepository;
+
+    const docente = await this.docenteRepository.findOne({
+      where: { id_docente},
+      select:[
+        'id_docente',
+        'nombres',
+        'apellidos',
+        'carnet',
+        'especialidad',
+        'img_perfil',
+        'estado'
+      ]
+    })
+
+  if (!docente) {
+    throw new NotFoundException('Docente no existe');
+  }
+
+  return docente;
+  }
+
   async update(id: string, updateDocenteDto: UpdateDocenteDto) {
     const docente = await this.docenteRepository.findOneBy({ id_docente: id });
     if (!docente) {
@@ -133,9 +160,9 @@ export class DocentesService {
       throw new BadRequestException('Especialidad no existe');
     }
 
-    // if (especialidad.estado == EstadoEspecialidad.INACTIVO) {
-    //   throw new BadRequestException('Especialidad inactiva');
-    // }
+    if (especialidad.estado.nombre == EnumEstados.INACTIVO) {
+      throw new BadRequestException('Especialidad inactiva');
+    }
 
     docente.especialidad = especialidad;
     delete updateDocenteDto.id_especialidad;

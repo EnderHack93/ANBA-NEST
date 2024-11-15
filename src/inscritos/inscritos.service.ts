@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateInscritoDto } from './dto/create-inscrito.dto';
 import { UpdateInscritoDto } from './dto/update-inscrito.dto';
 import {
@@ -61,6 +61,22 @@ export class InscritosService {
     });
   }
 
+  async findInscritosByClase(id_clase: number){
+
+    const inscritos = await this.inscritosRepository
+      .createQueryBuilder('inscrito')
+      .leftJoinAndSelect('inscrito.estudiante', 'estudiante')
+      .where('inscrito.clase.id_clase = :id_clase', { id_clase })
+      .getMany();
+
+    return inscritos.map(inscrito => ({
+      id_estudiante: inscrito.estudiante.id_estudiante,
+      nombres: inscrito.estudiante.nombres,
+      apellidos: inscrito.estudiante.apellidos,
+      carnet: inscrito.estudiante.carnet,
+    }));
+  }
+
   findOne(id: number) {
     return `This action returns a #${id} inscrito`;
   }
@@ -68,6 +84,7 @@ export class InscritosService {
   update(id: number, updateInscritoDto: UpdateInscritoDto) {
     return `This action updates a #${id} inscrito`;
   }
+
 
   remove(id: number) {
     return this.inscritosRepository.delete({

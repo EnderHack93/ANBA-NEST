@@ -4,7 +4,9 @@ import { CreateClaseDto } from './dto/create-clase.dto';
 import { UpdateClaseDto } from './dto/update-clase.dto';
 import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { Clase } from './entities/clase.entity';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Clases")
 @Controller('clases')
 export class ClasesController {
   constructor(private readonly clasesService: ClasesService) {}
