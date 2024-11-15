@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { EstudiantesModule } from './estudiantes/estudiantes.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EspecialidadesModule } from './especialidades/especialidades.module';
@@ -16,6 +16,7 @@ import { UsuariosModule } from './usuarios/usuarios.module';
 import { AsistenciaModule } from './asistencia/asistencia.module';
 import { SecurityModule } from './security/security.module';
 import { AdministradoresModule } from './administradores/administradores.module';
+import { LoggingMiddleware } from './security/middlewares/security_logs.middleware';
 
 @Module({
   imports: [
@@ -50,4 +51,5 @@ import { AdministradoresModule } from './administradores/administradores.module'
     AdministradoresModule,
   ],
 })
-export class AppModule {}
+export class AppModule {
+}

@@ -7,7 +7,7 @@ export class Security {
   id: number;
 
   @Column({ nullable: true })
-  user_id: number;
+  user_id: string;
 
   @Column({ name: 'ip_address', type: 'varchar', length: 45 })
   ipAddress: string;
