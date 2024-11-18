@@ -14,5 +14,6 @@ import { UsuariosModule } from 'src/usuarios/usuarios.module';
   ],
   controllers: [AdministradoresController],
   providers: [AdministradoresService],
+  exports: [AdministradoresService],
 })
 export class AdministradoresModule {}

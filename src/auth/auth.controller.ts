@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RequestWithUser } from './interfaces/requestLogin.interface';
@@ -8,6 +8,7 @@ import { ActiveUser } from 'src/common/decorators/active-user.decorators';
 import { UserInterfaceActive } from 'src/common/interfaces/user-active.interface';
 import { ApiTags } from '@nestjs/swagger';
 import { RefreshTokenDto } from './dto/refresh.dto';
+import { recoverPasswordDto } from './dto/recoverPass.dto';
 
 @ApiTags("Auth")
 @Controller('auth')
@@ -23,6 +24,19 @@ export class AuthController {
   @Post('refresh')
   async refreshToken(@Body() refreshToken:RefreshTokenDto){
     return this.authService.refreshTokens(refreshToken);
+  }
+  @Post('recover-password')
+  async recoverPassword(@Body() recoverDto:recoverPasswordDto) {
+    return this.authService.recoverPassword(recoverDto);
+  }
+
+  @Post('reset-password')
+  async resetPassword(
+    @Query('token') token: string,
+    @Body('newPassword') newPassword: string,
+  ) {
+    await this.authService.resetPassword(token, newPassword);
+    return { message: 'Password has been reset successfully' };
   }
 
   @Get('check')

@@ -31,6 +31,9 @@ export class Usuario {
   @Column({ type: 'enum', enum: EnumRoles, default: EnumRoles.ESTUDIANTE })
   rol: string;
 
+  @Column({ default: 0 })
+  failedLoginAttempts: number;
+
   @CreateDateColumn()
   created_at: Date;
 

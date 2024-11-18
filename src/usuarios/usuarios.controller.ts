@@ -30,9 +30,9 @@ export class UsuariosController {
 
   @ApiBearerAuth()
   @Get('profile')
-  @Auth(EnumRoles.ADMIN)
+  @Auth(EnumRoles.ADMIN, EnumRoles.DOCENTE, EnumRoles.ESTUDIANTE)
   getProfileInfo(@ActiveUser() user:UserInterfaceActive){
-    return this.usuariosService.getProfileInfo(user.id);
+    return this.usuariosService.getProfileInfo(user.id,user.rol);
   }
 
   @Patch(':id')

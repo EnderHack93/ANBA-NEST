@@ -9,13 +9,13 @@ export class Security {
   @Column({ nullable: true })
   user_id: string;
 
-  @Column({ name: 'ip_address', type: 'varchar', length: 45 })
+  @Column({ name: 'ip_address', type: 'varchar'})
   ipAddress: string;
 
   @Column({ type: 'varchar', length: 10 })
   action: string;
 
-  @Column({ name: 'table_name', type: 'varchar', length: 50 })
+  @Column({ name: 'table_name', type: 'varchar' })
   tableName: string;
 
   @CreateDateColumn()

@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateEstudianteDto } from './dto/create-estudiante.dto';
 import { UpdateEstudianteDto } from './dto/update-estudiante.dto';
@@ -84,6 +85,26 @@ export class EstudiantesService {
     } catch (Ex) {
       throw new InternalServerErrorException(Ex);
     }
+  }
+  async findEstudianteProfileInfo(id_estudiante: string) {
+    const docente = await this.estudianteRepository.findOne({
+      where: { id_estudiante},
+      select:[
+        'id_estudiante',
+        'nombres',
+        'apellidos',
+        'carnet',
+        'especialidad',
+        'img_perfil',
+        'estado'
+      ]
+    })
+
+  if (!docente) {
+    throw new NotFoundException('Docente no existe');
+  }
+
+  return docente;
   }
 
   async getEstudiantesPorMateria(id_materia: number) {

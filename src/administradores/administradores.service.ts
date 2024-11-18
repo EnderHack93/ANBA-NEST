@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateAdministradorDto } from './dto/create-administrador.dto';
 import { UpdateAdministradoreDto } from './dto/update-administrador.dto';
@@ -75,6 +76,27 @@ export class AdministradoresService {
 
   findOne(id: number) {
     return `This action returns a #${id} administradore`;
+  }
+
+  async findAdminProfileInfo(id_admin: string) {
+
+    const docente = await this.administradorRepository.findOne({
+      where: { id_admin},
+      select:[
+        'id_admin',
+        'nombres',
+        'apellidos',
+        'carnet',
+        'img_perfil',
+        'estado'
+      ]
+    })
+
+  if (!docente) {
+    throw new NotFoundException('Docente no existe');
+  }
+
+  return docente;
   }
 
   update(id: number, updateAdministradoreDto: UpdateAdministradoreDto) {

@@ -9,13 +9,16 @@ import { Docente } from 'src/docentes/entities/docente.entity';
 import { Estudiante } from 'src/estudiantes/entities/estudiante.entity';
 import { DocentesModule } from 'src/docentes/docentes.module';
 import { AdministradoresModule } from 'src/administradores/administradores.module';
+import { EstudiantesModule } from 'src/estudiantes/estudiantes.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Usuario, Estado, Docente, Estudiante]),
     EstadoModule,
+
     forwardRef(()=>DocentesModule),
-    forwardRef(()=>AdministradoresModule)
+    forwardRef(()=>AdministradoresModule),
+    forwardRef(()=>EstudiantesModule)
   ],
   controllers: [UsuariosController],
   providers: [UsuariosService],

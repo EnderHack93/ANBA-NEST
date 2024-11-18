@@ -4,6 +4,8 @@ import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { UsuariosModule } from 'src/usuarios/usuarios.module';
 import { ConfigModule } from '@nestjs/config';
+import { EstadoModule } from 'src/estados/estado.module';
+import { EmailModule } from 'src/email/email.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -11,6 +13,8 @@ import { ConfigModule } from '@nestjs/config';
       envFilePath: '.env',
     }),
     UsuariosModule,
+    EstadoModule,
+    EmailModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },
