@@ -37,16 +37,15 @@ export class DocentesService {
     @InjectRepository(Especialidad)
     private readonly especialidadRepository: Repository<Especialidad>,
     private readonly estadoService: EstadoService,
-    @Inject(forwardRef(()=>UsuariosService))
+    @Inject(forwardRef(() => UsuariosService))
     private readonly userService: UsuariosService,
   ) {}
   async create(createDocenteDto: CreateDocenteDto) {
     try {
-
       await this.validateUniqueValues(createDocenteDto);
 
       const docenteDto = this.docenteRepository.create(createDocenteDto);
-      
+
       const username = await this.genId(
         createDocenteDto.nombres,
         createDocenteDto.apellidos,
@@ -86,15 +85,27 @@ export class DocentesService {
     }
   }
 
-  async changeState(id: string) {
-    const docente = await this.docenteRepository.findOneBy({ id_docente: id });
+  async changeState(id:string){
+    const semestre = await this.findOne(id);
+    
+    if(!semestre){
+      throw new Error('Docente no encontrado');
+    }
 
-    docente.estado =
-      docente.estado === EstadoDocentes.ACTIVO
-        ? EstadoDocentes.INACTIVO
-        : EstadoDocentes.ACTIVO;
+    if(semestre.estado.nombre === EnumEstados.ACTIVO){
+      const newEstado = await this.estadoService.findByName(EnumEstados.INACTIVO);
+      semestre.estado = newEstado;
+      return this.docenteRepository.save(semestre);
+    }
 
-    return await this.docenteRepository.save(docente);
+    if(semestre.estado.nombre === EnumEstados.INACTIVO){
+      const newEstado = await this.estadoService.findByName(EnumEstados.ACTIVO);
+      semestre.estado = newEstado;
+      return this.docenteRepository.save(semestre);
+    }
+    
+
+    
   }
   async findAll(query: PaginateQuery): Promise<Paginated<Docente>> {
     return paginate(query, this.docenteRepository, {
@@ -127,23 +138,23 @@ export class DocentesService {
     const docenteRepository = this.docenteRepository;
 
     const docente = await this.docenteRepository.findOne({
-      where: { id_docente},
-      select:[
+      where: { id_docente },
+      select: [
         'id_docente',
         'nombres',
         'apellidos',
         'carnet',
         'especialidad',
         'img_perfil',
-        'estado'
-      ]
-    })
+        'estado',
+      ],
+    });
 
-  if (!docente) {
-    throw new NotFoundException('Docente no existe');
-  }
+    if (!docente) {
+      throw new NotFoundException('Docente no existe');
+    }
 
-  return docente;
+    return docente;
   }
 
   async update(id: string, updateDocenteDto: UpdateDocenteDto) {
@@ -173,10 +184,10 @@ export class DocentesService {
   async remove(id: string) {
     const docente = await this.docenteRepository.findOneBy({ id_docente: id });
 
-    docente.estado =
-      docente.estado === EstadoDocentes.ACTIVO
-        ? EstadoDocentes.INACTIVO
-        : EstadoDocentes.ACTIVO;
+    docente.estado.nombre =
+      docente.estado.nombre === EnumEstados.ACTIVO
+        ? EnumEstados.INACTIVO
+        : EnumEstados.ACTIVO;
 
     return await this.docenteRepository.save(docente);
   }

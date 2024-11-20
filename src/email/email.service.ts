@@ -6,8 +6,7 @@ export class EmailService {
   constructor(private readonly mailerService: MailerService) {}
 
   async sendRecoveryEmail(email: string, token: string) {
-    const resetUrl = `${process.env.FRONTEND_URL}/auth/reset-password?token=${token}`;
-    console.log(resetUrl);
+    const resetUrl = `${process.env.FRONTEND_URL}/auth/reset-password/${token}`;
     try {
       await this.mailerService.sendMail({
         to: email,

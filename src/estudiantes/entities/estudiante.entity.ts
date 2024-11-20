@@ -17,6 +17,7 @@ import { Clase } from 'src/clases/entities/clase.entity';
 import { Inscrito } from 'src/inscritos/entities/inscrito.entity';
 import { Usuario } from 'src/usuarios/entities/usuario.entity';
 import { Asistencia } from 'src/asistencia/entities/asistencia.entity';
+import { Estado } from 'src/estados/entites/estado.entity';
 
 @Entity()
 export class Estudiante {
@@ -43,9 +44,6 @@ export class Estudiante {
   })
   img_perfil:string
 
-  @Column({ default:EstadoEst.ACTIVO})
-  estado: EstadoEst;
-
   @CreateDateColumn()
   created_at: Date;
 
@@ -70,5 +68,9 @@ export class Estudiante {
   @OneToOne(() => Usuario, (usuario) => usuario.estudiante)
   @JoinColumn({ name: 'id_usuario' })
   usuario: Usuario;
+
+  @ManyToOne(() => Estado, (estado) => estado.nombre, {eager:true})
+  @JoinColumn({ name: 'id_estado'})
+  estado: Estado;
   
 }

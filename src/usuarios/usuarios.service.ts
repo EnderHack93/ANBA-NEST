@@ -101,8 +101,12 @@ export class UsuariosService {
   
     // Asociar la información del usuario al perfil
     profileInfo.usuario = usuario;
+    const result = {
+      info: profileInfo,
+      usuario
+    }
   
-    return profileInfo;
+    return result;
   }
   
 

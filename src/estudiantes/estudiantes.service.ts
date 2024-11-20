@@ -42,7 +42,7 @@ export class EstudiantesService {
     private readonly estadoService: EstadoService,
     @Inject(forwardRef(() => UsuariosService))
     private readonly userService: UsuariosService,
-    private readonly materiaService:MateriasService,
+    private readonly materiaService: MateriasService,
   ) {}
   async create(createEstudianteDto: CreateEstudianteDto) {
     try {
@@ -88,32 +88,32 @@ export class EstudiantesService {
   }
   async findEstudianteProfileInfo(id_estudiante: string) {
     const docente = await this.estudianteRepository.findOne({
-      where: { id_estudiante},
-      select:[
+      where: { id_estudiante },
+      select: [
         'id_estudiante',
         'nombres',
         'apellidos',
         'carnet',
         'especialidad',
         'img_perfil',
-        'estado'
-      ]
-    })
+        'estado',
+      ],
+    });
 
-  if (!docente) {
-    throw new NotFoundException('Docente no existe');
-  }
+    if (!docente) {
+      throw new NotFoundException('Docente no existe');
+    }
 
-  return docente;
+    return docente;
   }
 
   async getEstudiantesPorMateria(id_materia: number) {
     const materia = await this.materiaService.findOne(id_materia);
-  
+
     if (!materia) {
       throw new Error('Materia no encontrada');
     }
-  
+
     // Obtener todos los estudiantes que NO están inscritos en clases de la materia
     const estudiantes = await this.estudianteRepository
       .createQueryBuilder('estudiante')
@@ -134,10 +134,9 @@ export class EstudiantesService {
         'estudiante.carnet',
       ])
       .getMany();
-  
+
     return estudiantes;
   }
-  
 
   async findAll(query: PaginateQuery): Promise<Paginated<Estudiante>> {
     return paginate(query, this.estudianteRepository, {
@@ -177,9 +176,9 @@ export class EstudiantesService {
       throw new BadRequestException('Especialidad no existe');
     }
 
-    // if (especialidad.estado == EstadoEspecialidad.INACTIVO) {
-    //   throw new BadRequestException('Especialidad inactiva');
-    // }
+    if (especialidad.estado.nombre == EnumEstados.INACTIVO) {
+      throw new BadRequestException('Especialidad inactiva');
+    }
 
     estudiante.especialidad = especialidad;
     delete updateEstudianteDto.id_especialidad;
@@ -191,16 +190,25 @@ export class EstudiantesService {
     return await this.estudianteRepository.softDelete({ id_estudiante: id });
   }
   async changeState(id: string) {
-    const estudiante = await this.estudianteRepository.findOneBy({
-      id_estudiante: id,
-    });
+    const semestre = await this.findOne(id);
 
-    estudiante.estado =
-      estudiante.estado === EstadoEst.ACTIVO
-        ? EstadoEst.INACTIVO
-        : EstadoEst.ACTIVO;
+    if (!semestre) {
+      throw new NotFoundException('Estudiante no encontrado');
+    }
 
-    return await this.estudianteRepository.save(estudiante);
+    if (semestre.estado.nombre === EnumEstados.ACTIVO) {
+      const newEstado = await this.estadoService.findByName(
+        EnumEstados.INACTIVO,
+      );
+      semestre.estado = newEstado;
+      return this.estudianteRepository.save(semestre);
+    }
+
+    if (semestre.estado.nombre === EnumEstados.INACTIVO) {
+      const newEstado = await this.estadoService.findByName(EnumEstados.ACTIVO);
+      semestre.estado = newEstado;
+      return this.estudianteRepository.save(semestre);
+    }
   }
 
   async genId(nombres: string, apellidos: string, dni: string) {

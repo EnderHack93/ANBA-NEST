@@ -9,6 +9,7 @@ import { UserInterfaceActive } from 'src/common/interfaces/user-active.interface
 import { ApiTags } from '@nestjs/swagger';
 import { RefreshTokenDto } from './dto/refresh.dto';
 import { recoverPasswordDto } from './dto/recoverPass.dto';
+import { ResetPasswordDto } from './dto/reset-password.fto';
 
 @ApiTags("Auth")
 @Controller('auth')
@@ -32,11 +33,9 @@ export class AuthController {
 
   @Post('reset-password')
   async resetPassword(
-    @Query('token') token: string,
-    @Body('newPassword') newPassword: string,
+    @Body() resetPasswordDto:ResetPasswordDto,
   ) {
-    await this.authService.resetPassword(token, newPassword);
-    return { message: 'Password has been reset successfully' };
+    return await this.authService.resetPassword(resetPasswordDto);
   }
 
   @Get('check')

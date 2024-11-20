@@ -13,6 +13,7 @@ import {
 import { EstadoDocentes } from './estado.enum';
 import { Clase } from 'src/clases/entities/clase.entity';
 import { Usuario } from 'src/usuarios/entities/usuario.entity';
+import { Estado } from 'src/estados/entites/estado.entity';
 
 @Entity()
 export class Docente {
@@ -40,9 +41,6 @@ export class Docente {
   img_perfil:string
   
 
-  @Column({ default: EstadoDocentes.ACTIVO })
-  estado: EstadoDocentes;
-
   @CreateDateColumn()
   created_at: Date;
 
@@ -68,4 +66,8 @@ export class Docente {
   @OneToOne(() => Usuario, (usuario) => usuario.docente,{eager:true})
   @JoinColumn({ name: 'id_usuario' })
   usuario: Usuario;
+
+  @ManyToOne(() => Estado, (estado) => estado.nombre, {eager:true})
+  @JoinColumn({ name: 'id_estado'})
+  estado: Estado;
 }

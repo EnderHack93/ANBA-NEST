@@ -14,6 +14,7 @@ import { EstadoService } from 'src/estados/estado.service';
 import { Usuario } from 'src/usuarios/entities/usuario.entity';
 import { EmailService } from 'src/email/email.service';
 import { recoverPasswordDto } from './dto/recoverPass.dto';
+import { ResetPasswordDto } from './dto/reset-password.fto';
 
 @Injectable()
 export class AuthService {
@@ -132,8 +133,9 @@ export class AuthService {
     }
   }
 
-  async resetPassword(token: string, newPassword: string): Promise<void> {
+  async resetPassword(resetPasswordDto:ResetPasswordDto) {
     try {
+      const { token, password } = resetPasswordDto;
       const { username } = this.jwtService.verify(token);
       const user = await this.usuariosService.findByUsername(username);
 
@@ -142,7 +144,8 @@ export class AuthService {
       }
 
       // Cambiar la contraseña del usuario
-      const newUser =await this.usuariosService.resetPassword(username, newPassword);
+      const newUser =await this.usuariosService.resetPassword(username, password);
+      return { message: 'Contraseña actualizada' };
     } catch (error) {
       throw new BadRequestException('Token invalido intente nuevamente');
     }

@@ -50,7 +50,7 @@ export class ClasesService {
       throw new BadRequestException('Docente no encontrado');
     }
 
-    if (docente.estado == EstadoDocentes.INACTIVO) {
+    if (docente.estado.nombre == EnumEstados.INACTIVO) {
       throw new BadRequestException('Docente inactivo');
     }
 
