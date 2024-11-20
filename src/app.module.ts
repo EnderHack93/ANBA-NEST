@@ -33,8 +33,11 @@ import { EmailModule } from './email/email.module';
       username: process.env.POSTGRES_USERNAME,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DATABASE,
-      synchronize: true,
       autoLoadEntities: true,
+      synchronize: process.env.DB_SYNC === 'true',
+      ssl: process.env.DB_SSL === 'true'
+        ? { rejectUnauthorized: false }
+        : undefined, // Solo habilita SSL si la variable está configurada
     }),
     EspecialidadesModule,
     DocentesModule,
