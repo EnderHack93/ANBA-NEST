@@ -85,31 +85,30 @@ export class DocentesService {
     }
   }
 
-  async changeState(id:string){
+  async changeState(id: string) {
     const semestre = await this.findOne(id);
-    
-    if(!semestre){
+
+    if (!semestre) {
       throw new Error('Docente no encontrado');
     }
 
-    if(semestre.estado.nombre === EnumEstados.ACTIVO){
-      const newEstado = await this.estadoService.findByName(EnumEstados.INACTIVO);
+    if (semestre.estado.nombre === EnumEstados.ACTIVO) {
+      const newEstado = await this.estadoService.findByName(
+        EnumEstados.INACTIVO,
+      );
       semestre.estado = newEstado;
       return this.docenteRepository.save(semestre);
     }
 
-    if(semestre.estado.nombre === EnumEstados.INACTIVO){
+    if (semestre.estado.nombre === EnumEstados.INACTIVO) {
       const newEstado = await this.estadoService.findByName(EnumEstados.ACTIVO);
       semestre.estado = newEstado;
       return this.docenteRepository.save(semestre);
     }
-    
-
-    
   }
   async findAll(query: PaginateQuery): Promise<Paginated<Docente>> {
     return paginate(query, this.docenteRepository, {
-      relations: ['especialidad'],
+      relations: ['especialidad','estado'],
       sortableColumns: ['id_docente', 'nombres', 'apellidos', 'carnet'],
       searchableColumns: [
         'id_docente',
@@ -120,7 +119,7 @@ export class DocentesService {
       ],
       defaultSortBy: [['id_docente', 'ASC']],
       filterableColumns: {
-        estado: [FilterOperator.EQ],
+        "estado.nombre": [FilterOperator.EQ],
         'especialidad.nombre': [FilterOperator.ILIKE],
         nombres: [FilterOperator.ILIKE],
         apellidos: [FilterOperator.ILIKE],

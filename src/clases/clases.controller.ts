@@ -4,7 +4,12 @@ import { CreateClaseDto } from './dto/create-clase.dto';
 import { UpdateClaseDto } from './dto/update-clase.dto';
 import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { Clase } from './entities/clase.entity';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { EnumRoles } from 'src/common/enums/roles.enum';
+import { ActiveUser } from 'src/common/decorators/active-user.decorators';
+import { UserInterfaceActive } from 'src/common/interfaces/user-active.interface';
 
 @ApiTags("Clases")
 @Controller('clases')
@@ -17,9 +22,17 @@ export class ClasesController {
   }
 
   @Get()
+  @Auth(EnumRoles.ADMIN)
   findAll(@Paginate() query:PaginateQuery):
   Promise<Paginated<Clase>> {
     return this.clasesService.findAll(query);
+  }
+
+  @Get('/getClasesByDocente')
+  @ApiBearerAuth()
+  @Auth(EnumRoles.DOCENTE)
+  getClasesByDocente(@ActiveUser() user:UserInterfaceActive){
+    return this.clasesService.getClasesByDocente(user.id);
   }
 
   @Get(':id')

@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { CreateAdministradorDto } from './dto/create-administrador.dto';
 import { UpdateAdministradoreDto } from './dto/update-administrador.dto';
-import { paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
+import { FilterOperator, paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { query } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -65,38 +65,40 @@ export class AdministradoresService {
     }
   }
 
-  findAll(query: PaginateQuery): Promise<Paginated<Administrador>> {
+  async findAll(query: PaginateQuery): Promise<Paginated<Administrador>> {
     return paginate(query, this.administradorRepository, {
       sortableColumns: ['id_admin', 'nombres', 'apellidos', 'carnet'],
       searchableColumns: ['id_admin', 'apellidos', 'nombres', 'carnet'],
       defaultSortBy: [['id_admin', 'ASC']],
-      filterableColumns: {},
+      filterableColumns:{
+        'estado.nombre':[FilterOperator.EQ],
+      },
+      relations:["estado"]
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} administradore`;
+  async findOne(id: string) {
+    return this.administradorRepository.findOneBy({ id_admin: id });
   }
 
   async findAdminProfileInfo(id_admin: string) {
-
     const docente = await this.administradorRepository.findOne({
-      where: { id_admin},
-      select:[
+      where: { id_admin },
+      select: [
         'id_admin',
         'nombres',
         'apellidos',
         'carnet',
         'img_perfil',
-        'estado'
-      ]
-    })
+        'estado',
+      ],
+    });
 
-  if (!docente) {
-    throw new NotFoundException('Docente no existe');
-  }
+    if (!docente) {
+      throw new NotFoundException('Docente no existe');
+    }
 
-  return docente;
+    return docente;
   }
 
   update(id: number, updateAdministradoreDto: UpdateAdministradoreDto) {
@@ -105,6 +107,28 @@ export class AdministradoresService {
 
   remove(id: number) {
     return `This action removes a #${id} administradore`;
+  }
+
+  async changeState(id: string) {
+    const administrador = await this.findOne(id);
+
+    if (!administrador) {
+      throw new Error('Docente no encontrado');
+    }
+
+    if (administrador.estado.nombre === EnumEstados.ACTIVO) {
+      const newEstado = await this.estadoService.findByName(
+        EnumEstados.INACTIVO,
+      );
+      administrador.estado = newEstado;
+      return this.administradorRepository.save(administrador);
+    }
+
+    if (administrador.estado.nombre === EnumEstados.INACTIVO) {
+      const newEstado = await this.estadoService.findByName(EnumEstados.ACTIVO);
+      administrador.estado = newEstado;
+      return this.administradorRepository.save(administrador);
+    }
   }
 
   private async genId(nombres: string, apellidos: string, dni: string) {
@@ -141,7 +165,7 @@ export class AdministradoresService {
     }
   }
   private async genPassword() {
-    const length = 12
+    const length = 12;
     const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const lowercase = 'abcdefghijklmnopqrstuvwxyz';
     const numbers = '0123456789';
@@ -170,7 +194,6 @@ export class AdministradoresService {
       .split('')
       .sort(() => 0.5 - Math.random())
       .join('');
-
 
     return password;
   }

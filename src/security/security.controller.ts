@@ -2,8 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { SecurityService } from './security.service';
 import { CreateSecurityDto } from './dto/create-security.dto';
 import { UpdateSecurityDto } from './dto/update-security.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('security')
+@ApiTags('Security')
 export class SecurityController {
   constructor(private readonly securityService: SecurityService) {}
 

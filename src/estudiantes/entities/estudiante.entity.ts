@@ -18,6 +18,7 @@ import { Inscrito } from 'src/inscritos/entities/inscrito.entity';
 import { Usuario } from 'src/usuarios/entities/usuario.entity';
 import { Asistencia } from 'src/asistencia/entities/asistencia.entity';
 import { Estado } from 'src/estados/entites/estado.entity';
+import { Evaluacion } from 'src/evaluaciones/entities/evaluacion.entity';
 
 @Entity()
 export class Estudiante {
@@ -66,11 +67,13 @@ export class Estudiante {
   asistencias: Asistencia[]
 
   @OneToOne(() => Usuario, (usuario) => usuario.estudiante)
-  @JoinColumn({ name: 'id_usuario' })
   usuario: Usuario;
 
   @ManyToOne(() => Estado, (estado) => estado.nombre, {eager:true})
   @JoinColumn({ name: 'id_estado'})
   estado: Estado;
+
+  @OneToMany(() => Evaluacion, (evaluacion) => evaluacion.estudiante)
+  evaluacion: Evaluacion[];
   
 }

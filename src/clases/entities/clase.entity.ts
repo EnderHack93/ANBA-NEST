@@ -9,11 +9,14 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { estado, horarios } from './clase.enum';
 import { Docente } from 'src/docentes/entities/docente.entity';
 import { Materia } from 'src/materias/entities/materia.entity';
 import { Inscrito } from 'src/inscritos/entities/inscrito.entity';
 import { Asistencia } from 'src/asistencia/entities/asistencia.entity';
+import { Evaluacion } from 'src/evaluaciones/entities/evaluacion.entity';
+import { Estado } from 'src/estados/entites/estado.entity';
+import { EnumHorarios } from 'src/common/enums/horarios.enum';
+
 
 @Entity()
 export class Clase {
@@ -26,14 +29,20 @@ export class Clase {
   @Column()
   capacidad_max: number;
 
+  @Column({type: 'enum', enum:EnumHorarios})
+  horario: EnumHorarios;
+
   @Column()
-  horario: horarios;
+  horaInicio:String;
+
+  @Column()
+  horaFin:String;
 
   @Column()
   aula: string;
 
-  @Column({default:estado.ACTIVO})
-  estado: estado;
+  @Column('text', { array: true , nullable: true}) // Define el campo como un arreglo de texto
+  dias: string[];
 
   @CreateDateColumn()
   createdAt: Date;
@@ -58,5 +67,12 @@ export class Clase {
 
   @OneToMany(() => Asistencia, asistencia => asistencia.clase)
   asistencias: Asistencia[];
+
+  @OneToMany(() => Evaluacion, evaluacion => evaluacion.clase)
+  evaluacion: Evaluacion[];
+
+  @ManyToOne(() => Estado, (estado) => estado.nombre, {eager:true})
+  @JoinColumn({ name: 'id_estado'})
+  estado: Estado;
   
 }

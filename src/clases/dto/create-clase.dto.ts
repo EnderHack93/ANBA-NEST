@@ -1,5 +1,5 @@
-import { IsEnum, IsNumber, IsString } from "class-validator";
-import { estado, horarios } from "../entities/clase.enum";
+import { ArrayNotEmpty, IsArray, IsEnum, IsNumber, IsString } from "class-validator";
+import { EnumHorarios } from "src/common/enums/horarios.enum";
 
 export class CreateClaseDto {
 
@@ -9,8 +9,12 @@ export class CreateClaseDto {
   @IsNumber()
   capacidad_max: number;
 
-  @IsEnum(horarios)
-  horario:horarios;
+  @IsEnum(EnumHorarios)
+  horario:EnumHorarios;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  dias: string[];
 
   @IsString()
   aula:string

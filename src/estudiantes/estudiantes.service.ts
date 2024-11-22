@@ -140,12 +140,12 @@ export class EstudiantesService {
 
   async findAll(query: PaginateQuery): Promise<Paginated<Estudiante>> {
     return paginate(query, this.estudianteRepository, {
-      relations: ['especialidad'],
+      relations: ['especialidad','estado'],
       sortableColumns: ['id_estudiante', 'nombres', 'apellidos', 'carnet'],
       searchableColumns: ['id_estudiante', 'nombres', 'apellidos', 'carnet'],
       defaultSortBy: [['id_estudiante', 'ASC']],
       filterableColumns: {
-        estado: [FilterOperator.EQ, FilterSuffix.NOT],
+        "estado.nombre": [FilterOperator.EQ, FilterSuffix.NOT],
         'especialidad.nombre': [FilterOperator.EQ],
         nombres: [FilterOperator.ILIKE],
         apellidos: [FilterOperator.ILIKE],

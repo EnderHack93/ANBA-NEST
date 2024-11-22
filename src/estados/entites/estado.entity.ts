@@ -1,4 +1,5 @@
 import { Administrador } from 'src/administradores/entities/administrador.entity';
+import { Clase } from 'src/clases/entities/clase.entity';
 import { EnumEstados } from 'src/common/enums/estados.enum';
 import { Especialidad } from 'src/especialidades/entities/especialidad.entity';
 import { Semestre } from 'src/semestre/entities/semestre.entity';
@@ -30,5 +31,8 @@ export class Estado {
 
   @OneToMany(()=>Administrador, (administrador) => administrador.estado)
   administrador: Administrador[]
+
+  @OneToMany(()=>Clase, (clase) => clase.estado)
+  clase: Clase[]
 
 }
