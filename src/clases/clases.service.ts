@@ -113,6 +113,37 @@ export class ClasesService {
     });
   }
 
+  async getRendimientoGeneral() {
+    const rendimiento = await this.claseRepository
+      .createQueryBuilder('clase')
+      .select('docente.nombres', 'docente')
+      .leftJoin('clase.evaluaciones', 'evaluaciones')
+      .leftJoin('clase.docente', 'docente')
+      .addSelect('AVG(evaluaciones.nota)', 'promedio')
+      .groupBy('docente.nombres')
+      .getRawMany();
+
+    const labels = rendimiento.map((r) => r.docente);
+    const data = rendimiento.map((r) => Number(r.promedio));
+    return { labels, data };
+  }
+
+  async getAllClasesEstudiante(id_estudiante:string){
+    return await this.claseRepository.find({
+      where: {
+        inscritos: {
+          estudiante: {
+            id_estudiante,
+          },
+        },
+      },
+      order: {
+        id_clase: 'ASC',
+      },
+      relations: ['materia', 'docente', 'materia.semestre', 'estado'],
+    });
+  }
+
   async getClasesByDocente(id_docente: string) {
     return await this.claseRepository.find({
       where: {

@@ -19,6 +19,7 @@ import { AdministradoresModule } from './administradores/administradores.module'
 import { LoggingMiddleware } from './security/middlewares/security_logs.middleware';
 import { EmailModule } from './email/email.module';
 import { EvaluacionesModule } from './evaluaciones/evaluaciones.module';
+import { CuadroDeMandoModule } from './cuadro_de_mando/cuadro_de_mando.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { EvaluacionesModule } from './evaluaciones/evaluaciones.module';
     AdministradoresModule,
     EmailModule,
     EvaluacionesModule,
+    CuadroDeMandoModule,
   ],
 })
 export class AppModule {

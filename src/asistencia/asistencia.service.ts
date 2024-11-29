@@ -56,6 +56,38 @@ export class AsistenciaService {
     return await this.asistenciaRepository.save(asistencia);
   }
 
+  async getAsistenciaPorFecha(startDate: string, endDate: string) {
+    const asistencia = await this.asistenciaRepository
+      .createQueryBuilder('asistencia')
+      .select('asistencia.fecha', 'fecha')
+      .addSelect('COUNT(asistencia.asistio)', 'total')
+      .where('asistencia.fecha BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate,
+      })
+      .groupBy('asistencia.fecha')
+      .orderBy('asistencia.fecha', 'ASC')
+      .getRawMany();
+
+    const labels = asistencia.map((a) => a.fecha);
+    const data = asistencia.map((a) => Number(a.total));
+    return { labels, data };
+  }
+
+  async getPorcentajeAsistenciaEstudiante(id_estudiante: string){
+    const asistencias = await this.asistenciaRepository.find({where: {estudiante: {id_estudiante}}});
+    const totalAsistencias = asistencias.length;
+    const asistio = asistencias.filter((asistencia) => asistencia.asistio === EnumAsistencia.ASISTIO).length;
+    const porcentaje = (asistio / totalAsistencias) * 100;
+    return Number(porcentaje.toFixed(2));
+  }
+
+  async getNumeroDeFaltas(id_estudiante: string){
+    const asistencias = await this.asistenciaRepository.find({where: {estudiante: {id_estudiante}}});
+    const faltas = asistencias.filter((asistencia) => asistencia.asistio === EnumAsistencia.FALTO).length;
+    return faltas;
+  }
+
   async marcarAsistencia(
     createAsistenciaDto: CreateAsistenciaDto,
   ): Promise<Asistencia> {

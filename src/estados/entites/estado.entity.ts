@@ -2,6 +2,7 @@ import { Administrador } from 'src/administradores/entities/administrador.entity
 import { Clase } from 'src/clases/entities/clase.entity';
 import { EnumEstados } from 'src/common/enums/estados.enum';
 import { Especialidad } from 'src/especialidades/entities/especialidad.entity';
+import { Evaluacion } from 'src/evaluaciones/entities/evaluacion.entity';
 import { Semestre } from 'src/semestre/entities/semestre.entity';
 import { Usuario } from 'src/usuarios/entities/usuario.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
@@ -34,5 +35,8 @@ export class Estado {
 
   @OneToMany(()=>Clase, (clase) => clase.estado)
   clase: Clase[]
+
+  @OneToMany(()=>Evaluacion, (evaluacion) => evaluacion.estado)
+  evaluaciones: Evaluacion[]
 
 }

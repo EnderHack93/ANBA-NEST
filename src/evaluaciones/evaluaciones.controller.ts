@@ -10,6 +10,7 @@ import { Auth } from 'src/auth/decorators/auth.decorator';
 import { ActiveUser } from 'src/common/decorators/active-user.decorators';
 import { EnumRoles } from 'src/common/enums/roles.enum';
 import { UserInterfaceActive } from 'src/common/interfaces/user-active.interface';
+import { ConfirmarEvaluacionDto } from './dto/confirm-evaluacion.dto';
 
 @Controller('evaluaciones')
 @ApiTags('Evaluaciones')
@@ -34,6 +35,11 @@ export class EvaluacionesController {
   @Post("/iniciarRegistros")
   iniciarRegistros(@Body() iniciarRegistrosDto: IniciarRegistrosDto) {
     return this.evaluacionesService.iniciarRecordEvaluacion(iniciarRegistrosDto);
+  }
+
+  @Post("/confirmarEvaluacion")
+  confirmarEvaluacion(@Body() confirmarEvaluacion: ConfirmarEvaluacionDto) {
+    return this.evaluacionesService.confirmarEvaluacion(confirmarEvaluacion);
   }
 
   @Post('/changeScore')

@@ -41,10 +41,10 @@ export class Materia {
   @JoinColumn({ name: 'id_especialidad' })
   especialidad: Especialidad;
 
-  @OneToMany(() => Clase, (clase) => clase.id_clase)
+  @OneToMany(() => Clase, (clase) => clase.materia)
   clases: Clase[];
 
-  @ManyToOne(()=> Semestre, (semestre) => semestre.id_semestre,)
+  @ManyToOne(()=> Semestre, (semestre) => semestre.materias,)
   @JoinColumn({ name: 'id_semestre' })
   semestre: Semestre;
 

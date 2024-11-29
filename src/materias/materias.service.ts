@@ -24,13 +24,14 @@ export class MateriasService {
     @InjectRepository(Especialidad)
     private readonly especialidadRepository: Repository<Especialidad>,
     private readonly estadoService: EstadoService,
-    private readonly semestreService: SemestreService
-
+    private readonly semestreService: SemestreService,
   ) {}
 
   async create(createMateriaDto: CreateMateriaDto) {
-    const semestre = await this.semestreService.findOne(createMateriaDto.id_semestre);
-    const estado = await this.estadoService.findByName(EnumEstados.ACTIVO)
+    const semestre = await this.semestreService.findOne(
+      createMateriaDto.id_semestre,
+    );
+    const estado = await this.estadoService.findByName(EnumEstados.ACTIVO);
 
     if (!semestre) {
       throw new BadRequestException('Semestre no encontrado');
@@ -39,7 +40,7 @@ export class MateriasService {
     const materia = this.materiaRepository.create({
       ...createMateriaDto,
       semestre,
-      estado
+      estado,
     });
 
     const especialidad = await this.especialidadRepository.findOneBy({
@@ -62,17 +63,38 @@ export class MateriasService {
 
   async findAll(query: PaginateQuery): Promise<Paginated<Materia>> {
     return paginate(query, this.materiaRepository, {
-      relations: ['especialidad','estado','semestre'],
+      relations: ['especialidad', 'estado', 'semestre'],
       sortableColumns: ['id_materia', 'nombre'],
-      searchableColumns: ['id_materia', 'nombre','especialidad.nombre'],
+      searchableColumns: ['id_materia', 'nombre', 'especialidad.nombre'],
       defaultSortBy: [['id_materia', 'ASC']],
       filterableColumns: {
-        estado: [FilterOperator.EQ],
+        'estado.nombre': [FilterOperator.EQ],
         nombre: [FilterOperator.ILIKE],
         semestre: [FilterOperator.ILIKE],
-        "especialidad.nombre": [FilterOperator.ILIKE],
+        'especialidad.nombre': [FilterOperator.EQ],
       },
     });
+  }
+
+  // Obtener el crecimiento de estudiantes
+  async getCrecimientoEstudiantes() {
+    const crecimiento = await this.materiaRepository
+      .createQueryBuilder('materia')
+      .leftJoinAndSelect('materia.semestre', 'semestre')
+      .leftJoinAndSelect('materia.clases', 'clase')
+      .leftJoinAndSelect('clase.inscritos', 'inscrito')
+      .select([
+        'materia.id_materia', // Incluye esta columna en el SELECT
+        'semestre.nombre AS semestre',
+        'COUNT(inscrito.id_inscrito) AS total',
+      ])
+      .groupBy('materia.id_materia') // Agrupa por esta columna
+      .addGroupBy('semestre.nombre') // También agrupa por el semestre
+      .getRawMany();
+
+    const labels = crecimiento.map((c) => c.semestre);
+    const data = crecimiento.map((c) => Number(c.total));
+    return { labels, data };
   }
 
   async findOne(id: number) {
@@ -80,7 +102,7 @@ export class MateriasService {
       where: {
         id_materia: id,
       },
-      relations: ['especialidad','estado','semestre'],
+      relations: ['especialidad', 'estado', 'semestre'],
     });
   }
 
@@ -97,7 +119,6 @@ export class MateriasService {
       },
     });
   }
-  
 
   async update(id: number, updateMateriaDto: UpdateMateriaDto) {
     const materia = await this.materiaRepository.findOneBy({
@@ -120,17 +141,26 @@ export class MateriasService {
       throw new BadRequestException('Especialidad inactiva');
     }
 
+    const semestre = await this.semestreService.findOne(
+      updateMateriaDto.id_semestre,
+    );
+
+    if (!semestre) {
+      throw new BadRequestException('Semestre no encontrado');
+    }
+
+    materia.semestre = semestre;
     materia.especialidad = especialidad;
     delete updateMateriaDto.id_especialidad;
-    Object.assign(materia,updateMateriaDto)
+    delete updateMateriaDto.id_semestre;
+    Object.assign(materia, updateMateriaDto);
 
-    return await this.materiaRepository.update(id,materia);
+    return await this.materiaRepository.update(id, materia);
   }
 
   async remove(id: number) {
-    return await this.materiaRepository.delete(id)
+    return await this.materiaRepository.delete(id);
   }
-
 
   async changeState(id: number) {
     const materia = await this.materiaRepository.findOneBy({
@@ -147,13 +177,15 @@ export class MateriasService {
       throw new BadRequestException('Estado no encontrado');
     }
 
-    if(estado.nombre === EnumEstados.ACTIVO){
-      const newEstado = await this.estadoService.findByName(EnumEstados.ACTIVO);
+    if (estado.nombre === EnumEstados.ACTIVO) {
+      const newEstado = await this.estadoService.findByName(
+        EnumEstados.INACTIVO,
+      );
       materia.estado = newEstado;
     }
 
-    if(estado.nombre === EnumEstados.INACTIVO){
-      const newEstado = await this.estadoService.findByName(EnumEstados.INACTIVO);
+    if (estado.nombre === EnumEstados.INACTIVO) {
+      const newEstado = await this.estadoService.findByName(EnumEstados.ACTIVO);
       materia.estado = newEstado;
     }
 

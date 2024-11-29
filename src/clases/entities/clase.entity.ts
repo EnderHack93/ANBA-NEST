@@ -56,7 +56,7 @@ export class Clase {
   @JoinColumn({ name: 'id_docente' })
   docente: Docente;
 
-  @ManyToOne(()=> Materia, (materia) => materia.id_materia, {
+  @ManyToOne(()=> Materia, (materia) => materia.clases, {
     eager: true,
   })
   @JoinColumn({ name: 'id_materia' })
@@ -69,7 +69,7 @@ export class Clase {
   asistencias: Asistencia[];
 
   @OneToMany(() => Evaluacion, evaluacion => evaluacion.clase)
-  evaluacion: Evaluacion[];
+  evaluaciones: Evaluacion[];
 
   @ManyToOne(() => Estado, (estado) => estado.nombre, {eager:true})
   @JoinColumn({ name: 'id_estado'})

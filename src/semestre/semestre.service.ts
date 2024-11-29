@@ -24,7 +24,10 @@ export class SemestreService {
   }
 
   async findAll() {
-    return this.semestreRepository.find();
+    return this.semestreRepository.find({
+      where:{estado:{nombre:EnumEstados.ACTIVO}},
+    }
+    );
   }
 
   async findOne(id_semestre: number) {

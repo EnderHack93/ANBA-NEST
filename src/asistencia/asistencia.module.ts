@@ -8,8 +8,12 @@ import { Clase } from 'src/clases/entities/clase.entity';
 import { InscritosModule } from 'src/inscritos/inscritos.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Asistencia,Estudiante,Clase]),InscritosModule],
+  imports: [
+    TypeOrmModule.forFeature([Asistencia, Estudiante, Clase]),
+    InscritosModule,
+  ],
   controllers: [AsistenciaController],
   providers: [AsistenciaService],
+  exports: [AsistenciaService],
 })
 export class AsistenciaModule {}

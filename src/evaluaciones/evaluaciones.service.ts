@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateEvaluacionDto } from './dto/create-evaluacion.dto';
 import { ChangeEvaluacionDto } from './dto/change-evaluacion.dto';
 import {
@@ -15,6 +20,8 @@ import { EstudiantesService } from 'src/estudiantes/estudiantes.service';
 import { EnumEstados } from 'src/common/enums/estados.enum';
 import { InscritosService } from 'src/inscritos/inscritos.service';
 import { IniciarRegistrosDto } from './dto/iniciar-registros.dto';
+import { ConfirmarEvaluacionDto } from './dto/confirm-evaluacion.dto';
+import { EstadoService } from 'src/estados/estado.service';
 
 @Injectable()
 export class EvaluacionesService {
@@ -24,11 +31,11 @@ export class EvaluacionesService {
     private readonly claseService: ClasesService,
     private readonly estudiantesService: EstudiantesService,
     private readonly inscritosService: InscritosService,
+    private readonly estadoService: EstadoService,
   ) {}
   async create(createEvaluacionDto: CreateEvaluacionDto) {
     const { id_clase, id_estudiante } = createEvaluacionDto;
     const clase = await this.claseService.findOne(id_clase);
-    console.log(clase);
 
     if (!clase) {
       throw new NotFoundException('Clase no encontrada');
@@ -56,6 +63,59 @@ export class EvaluacionesService {
     return evaluacion;
   }
 
+  async getPromedioNotasPorClase(): Promise<any> {
+    const result = await this.evaluacionReository
+      .createQueryBuilder("evaluacion")
+      .innerJoinAndSelect("evaluacion.clase", "clase")
+      .select("clase.nombre", "label")
+      .addSelect("AVG(evaluacion.nota)", "promedio")
+      .groupBy("clase.id_clase")
+      .getRawMany();
+  
+    return {
+      labels: result.map((item) => item.label),
+      data: result.map((item) => parseFloat(item.promedio.toFixed(2))),
+    };
+  }
+
+  async getRendimientoPorSemestre(): Promise<any> {
+    const result = await this.evaluacionReository
+      .createQueryBuilder("evaluacion")
+      .innerJoinAndSelect("evaluacion.clase", "clase") // Relación con materia
+      .innerJoinAndSelect("clase.materia", "materia")
+      .innerJoinAndSelect("materia.semestre", "semestre") // Relación con semestre desde materia
+      .select("semestre.nombre", "label")
+      .addSelect("AVG(evaluacion.nota)", "promedio")
+      .groupBy("semestre.id_semestre")
+      .orderBy("semestre.id_semestre", "ASC")
+      .getRawMany();
+  
+    return {
+      labels: result.map((item) => item.label),
+      data: result.map((item) => parseFloat(item.promedio.toFixed(2))),
+    };
+  }
+
+  async getRendimientoPorEstudiante(): Promise<any> {
+    const result = await this.evaluacionReository
+      .createQueryBuilder("evaluacion")
+      .innerJoin("evaluacion.estudiante", "estudiante")
+      .select("estudiante.nombres || ' ' || estudiante.apellidos", "label")
+      .addSelect("AVG(evaluacion.nota)", "promedio")
+      .groupBy("estudiante.id_estudiante")
+      .orderBy("promedio", "DESC")
+      .getRawMany();
+  
+    return {
+      labels: result.map((item) => item.label),
+      data: result.map((item) => parseFloat(item.promedio.toFixed(2))),
+    };
+  }
+  
+  
+  
+  
+
   async iniciarRecordEvaluacion(iniciarRegistrosDto: IniciarRegistrosDto) {
     const { id_clase, tipo_evaluacion } = iniciarRegistrosDto;
 
@@ -76,7 +136,6 @@ export class EvaluacionesService {
       throw new NotFoundException('No hay estudiantes inscritos en esta clase');
     }
 
-    
     // Verificar que los estudiantes están activos
     const evaluacionesCreadas = [];
     for (const estudiante of estudiantesInscritos) {
@@ -88,20 +147,23 @@ export class EvaluacionesService {
         clase,
         nota: 0, // Nota inicial
       });
-      
+
       evaluacionesCreadas.push(evaluacion);
     }
-    
+
     return {
       message: 'Evaluaciones creadas exitosamente',
       evaluaciones: evaluacionesCreadas,
     };
   }
-  
-  async cambiarValorEvaluacion(changeEvaluacionDto:ChangeEvaluacionDto, id_docente:string) {
+
+  async cambiarValorEvaluacion(
+    changeEvaluacionDto: ChangeEvaluacionDto,
+    id_docente: string,
+  ) {
     const { id_evaluacion, nuevaNota } = changeEvaluacionDto;
     const evaluacion = await this.evaluacionReository.findOne({
-      where: { id_evaluacion,clase: { docente: { id_docente } } },
+      where: { id_evaluacion, clase: { docente: { id_docente } } },
       relations: ['estudiante', 'clase'],
     });
     if (!evaluacion) {
@@ -113,7 +175,7 @@ export class EvaluacionesService {
   }
   async findAll(query: PaginateQuery): Promise<Paginated<Evaluacion>> {
     return paginate(query, this.evaluacionReository, {
-      relations: ['estudiante', 'clase'],
+      relations: ['estudiante', 'clase','estado'],
       sortableColumns: ['id_evaluacion'],
       searchableColumns: [
         'id_evaluacion',
@@ -128,6 +190,30 @@ export class EvaluacionesService {
         tipo_evaluacion: [FilterOperator.EQ],
       },
     });
+  }
+  async getPromedioEstudiante(id_estudiante: string) {
+    const evaluaciones = await this.evaluacionReository.find({
+      where: { estudiante: { id_estudiante } },
+    });
+    const promedio =
+      evaluaciones.reduce((total, evaluacion) => total + evaluacion.nota, 0) /
+      evaluaciones.length;
+    return promedio;
+  }
+
+  async confirmarEvaluacion(confirmarEvaluacion: ConfirmarEvaluacionDto) {
+    const evaluaciones:Evaluacion[] = await this.evaluacionReository.find({
+      where: {
+        clase: { id_clase: confirmarEvaluacion.id_clase },
+        tipo_evaluacion: confirmarEvaluacion.tipo_evaluacion,
+      },
+    });
+    const estadoInativo = await this.estadoService.findByName(EnumEstados.INACTIVO);
+    for (const evaluacion of evaluaciones) {
+      evaluacion.estado  = estadoInativo;
+      await this.evaluacionReository.save(evaluacion);
+    }
+    return 'Evaluaciones confirmadas';
   }
 
   findOne(id: number) {

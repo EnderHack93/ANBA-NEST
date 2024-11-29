@@ -29,6 +29,8 @@ import { EnumEstados } from 'src/common/enums/estados.enum';
 import { CreateUsuarioDto } from 'src/usuarios/dto/create-usuario.dto';
 import { EnumRoles } from 'src/common/enums/roles.enum';
 import { MateriasService } from 'src/materias/materias.service';
+import { EstudiantePredictionDto } from './dto/estudiante-prediction.dto';
+import { EvaluacionesService } from 'src/evaluaciones/evaluaciones.service';
 
 @Injectable()
 export class EstudiantesService {
@@ -37,8 +39,6 @@ export class EstudiantesService {
     private readonly estudianteRepository: Repository<Estudiante>,
     @InjectRepository(Especialidad)
     private readonly especialidadRepository: Repository<Especialidad>,
-    @InjectRepository(Inscrito)
-    private readonly inscritoRepository: Repository<Inscrito>,
     private readonly estadoService: EstadoService,
     @Inject(forwardRef(() => UsuariosService))
     private readonly userService: UsuariosService,
@@ -46,6 +46,7 @@ export class EstudiantesService {
   ) {}
   async create(createEstudianteDto: CreateEstudianteDto) {
     try {
+      const estado = await this.estadoService.findByName(EnumEstados.ACTIVO);
       await this.validateUniqueValues(createEstudianteDto);
       const estudianteDto =
         this.estudianteRepository.create(createEstudianteDto);
@@ -71,6 +72,7 @@ export class EstudiantesService {
       const estudiante = await this.estudianteRepository.save({
         ...estudianteDto,
         especialidad,
+        estado,
       });
       const userDto: CreateUsuarioDto = {
         username,
@@ -107,6 +109,44 @@ export class EstudiantesService {
     return docente;
   }
 
+  async getAllEstudiantesPredict(
+    query: PaginateQuery,
+  ): Promise<Paginated<Estudiante>> {
+    return paginate(query, this.estudianteRepository, {
+      relations: [
+        'especialidad',
+        'estado',
+        'inscritos', // Relación entre estudiantes e inscritos
+        'inscritos.clase', // Relación entre inscritos y clases
+        'inscritos.clase.docente',// Relación entre clases y docentes
+        'inscritos.clase.materia', 
+      ],
+      sortableColumns: ['id_estudiante', 'nombres', 'apellidos', 'carnet'],
+      searchableColumns: ['id_estudiante', 'nombres', 'apellidos', 'carnet'],
+      defaultSortBy: [['id_estudiante', 'ASC']],
+      filterableColumns: {
+        'estado.nombre': [FilterOperator.EQ, FilterSuffix.NOT],
+        'especialidad.nombre': [FilterOperator.EQ],
+        'inscritos.clase.nombre': [FilterOperator.ILIKE], // Filtrar por clases
+        'inscritos.clase.docente.nombres': [FilterOperator.ILIKE], // Filtrar por nombre del docente
+        'inscritos.clase.docente.apellidos': [FilterOperator.ILIKE], // Filtrar por apellido del docente
+        'inscritos.clase.materia.nombre': [FilterOperator.ILIKE],
+        nombres: [FilterOperator.ILIKE],
+        apellidos: [FilterOperator.ILIKE],
+        carnet: [FilterOperator.ILIKE],
+      },
+    });
+  }
+  
+  
+  async getEspecialidadEstudiante(id_estudiante: string) {
+    const especialidad = await this.estudianteRepository.findOne({
+      where: { id_estudiante },
+      relations: ['especialidad'],
+    });
+    return especialidad.especialidad.nombre;
+  }
+
   async getEstudiantesPorMateria(id_materia: number) {
     const materia = await this.materiaService.findOne(id_materia);
 
@@ -140,17 +180,16 @@ export class EstudiantesService {
 
   async findAll(query: PaginateQuery): Promise<Paginated<Estudiante>> {
     return paginate(query, this.estudianteRepository, {
-      relations: ['especialidad','estado'],
+      relations: ['especialidad', 'estado'],
       sortableColumns: ['id_estudiante', 'nombres', 'apellidos', 'carnet'],
       searchableColumns: ['id_estudiante', 'nombres', 'apellidos', 'carnet'],
       defaultSortBy: [['id_estudiante', 'ASC']],
       filterableColumns: {
-        "estado.nombre": [FilterOperator.EQ, FilterSuffix.NOT],
+        'estado.nombre': [FilterOperator.EQ, FilterSuffix.NOT],
         'especialidad.nombre': [FilterOperator.EQ],
         nombres: [FilterOperator.ILIKE],
         apellidos: [FilterOperator.ILIKE],
         carnet: [FilterOperator.ILIKE],
-        especialidad: [FilterOperator.ILIKE],
       },
     });
   }

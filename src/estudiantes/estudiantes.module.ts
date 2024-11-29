@@ -9,12 +9,14 @@ import { Inscrito } from 'src/inscritos/entities/inscrito.entity';
 import { EstadoModule } from 'src/estados/estado.module';
 import { UsuariosModule } from 'src/usuarios/usuarios.module';
 import { MateriasModule } from 'src/materias/materias.module';
+import { EvaluacionesModule } from 'src/evaluaciones/evaluaciones.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Estudiante, Especialidad, Inscrito]),
     EstadoModule,
     MateriasModule,
+    EvaluacionesModule,
     forwardRef(() => UsuariosModule),
   ],
   controllers: [EstudiantesController],
